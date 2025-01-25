@@ -8,9 +8,11 @@
         <v-row>
           <v-col cols="12">
             <div class="text-center">
-              <v-avatar color="surface-variant" size="150"></v-avatar>
+              <v-avatar color="" size="150" style="border: 1px black solid;">
+                <img src="../../public/image/S2.png" alt="" width="200">
+              </v-avatar>
             </div>
-            <h3 class="text-center">ເຂົ້າສູ່ລະບົບ 32 Lottery</h3>
+            <h3 class="text-center">ເຂົ້າສູ່ລະບົບ ຮ້ານຂາຍຢາສິງຄຳ</h3>
           </v-col>
 
           <v-col cols="12">
@@ -61,12 +63,27 @@
 import axios from "@/helpers/axios";
 import { UserModel } from "@/models/";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
+import Swal from "sweetalert2";
 
 const username = ref(null);
 const password = ref(null);
 const visible = ref(false);
 const loading = ref(false);
 const form = ref();
+const router = useRouter();
+
+const goPath = (path: string) => {
+  router.push(path);
+};
+
+const DefaultSwalError = (error: any) => {
+  Swal.fire({
+    icon: 'error',
+    title: 'Oops...',
+    text: error.message || 'Something went wrong!',
+  });
+};
 
 const handleLogin = async () => {
   try {
@@ -74,20 +91,24 @@ const handleLogin = async () => {
     if (valid) {
       loading.value = true;
       const res = await axios.post<UserModel.UserLoginResponse>(
-        "/api/v1/users/login",
+        "/login",
         {
           username: username.value,
           password: password.value,
         }
       );
 
-      if (res.status === 200) {
-        localStorage.setItem("token", res.data.items.token);
-        localStorage.setItem("user", JSON.stringify(res.data.items.user));
+      console.log("Response:", res);
+
+      if (res.status === 200 && res.data.token && res.data.user) {
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
 
         setTimeout(() => {
           goPath("/");
         }, 1500);
+      } else {
+        throw new Error("Invalid response structure");
       }
     }
   } catch (error) {

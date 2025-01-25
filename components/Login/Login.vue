@@ -1,7 +1,15 @@
 <template>
   <v-container>
     <div class="text-center mb-5">
-      <v-avatar color="surface-variant" size="150"></v-avatar>
+      <v-avatar size="150" class="login-avatar">
+        <v-img
+          src="@/public/image/S2.png"
+          alt="Login logo"
+          cover
+          :eager="true"
+        ></v-img>
+      </v-avatar>
+      <img src="../../public/image/S2.png" alt="">
     </div>
     <h2 class="text-center mb-5">ເຂົ້າສູ່ລະບົບ 32 Lottery</h2>
     <div class="d-flex justify-center">
@@ -28,7 +36,7 @@
           id="password"
           v-model="password"
           :type="visible ? 'text' : 'password'"
-          :append-inner-icon="visible ?   'mdi-eye':'mdi-eye-off'"
+          :append-inner-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
           @click:append-inner="toggleVisibility"
           :rules="[(v: string) => !!v || 'Password is required']"
           label="ກະລຸນາປ້ອນລະຫັດຜ່ານ"
