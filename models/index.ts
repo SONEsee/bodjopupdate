@@ -10,6 +10,8 @@ import * as VillageModel from "./villages";
 import * as AgencyModel from "./agency";
 import * as IdentitiesModel from "./identities";
 import * as DeviceDetailModels from "./devicedetail";
+import * as ProductModel from "./product";
+import * as CategoryModel from "./category";
 
 export {
   UserModel,
@@ -24,4 +26,6 @@ export {
   IdentitiesModel,
   DeviceDetailModel,
   DeviceDetailModels,
+  ProductModel,
+  CategoryModel,
 };

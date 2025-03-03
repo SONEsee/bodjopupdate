@@ -89,7 +89,7 @@ const items = ref([
   {
     title: "ຈັດການຂໍ້ມູນ",
     menu: [
-      { text: "ຈັດການຕົວແທນ", icon: "mdi-account-group", to: "/agency" },
+      { text: "ຈັດການຂໍ້ມູນປະເພດຂອງຢາ", icon: "mdi-shape-plus-outline", to: "/category" },
       {
         text: "ຈັດການປະເພດລາຍຈ່າຍ",
         icon: "mdi-cash-edit",

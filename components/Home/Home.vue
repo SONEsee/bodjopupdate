@@ -19,7 +19,7 @@
           </v-col>
           <v-col cols="12" md="3">
             <v-select
-              label="Filter by Type"
+              label="ກັ່ນຕອງຕາມປະເພດ"
               :items="types"
               v-model="selectedType"
               @change="filterByType"
@@ -28,7 +28,7 @@
           </v-col>
           <v-col cols="12" md="5">
             <v-text-field
-              label="Search by Barcode"
+              label="ຄົ້ນຫາດ້ວຍບາໂຄດ"
               v-model="searchBarcode"
               @keyup.enter="selectByBarcode"
               variant="outlined"
@@ -38,21 +38,21 @@
         <v-row>
           <v-col cols="12" md="3" v-for="item in filteredData" :key="item.id">
             <v-card flat class="rounded-lg">
-              <v-chip class="ma-2" label>{{ item.stem }}</v-chip>
+              <v-chip class="ma-2" label>{{ item.quantity_in_stock }}</v-chip>
               <v-container class="d-flex justify-center">
                 <v-img
-                  :src="item.URL"
+                  :src="`${URL}/${item.product_image}`"
                   width="150"
                   height="150"
                   class="d-flex justify-center"
                   min-height="10vh"
                   min-width="100%"
-                  :alt="item.name"
+                  :alt="item.product_name"
                 ></v-img>
               </v-container>
-              <p>ຊື່ຢາ: {{ item.name }}</p>
-              <p>ລາຄາ: {{ item.price }} {{ item.currencode }}</p>
-              <v-btn @click="selectItem(item)" color="green">Select</v-btn>
+              <p>ຊື່ສິນຄ້າ: {{ item.product_name }}</p>
+              <p>ລາຄາ: {{ item.price }} LAK</p>
+              <v-btn @click="selectItem(item)" color="green">ເລືອກ</v-btn>
             </v-card>
           </v-col>
         </v-row>
@@ -65,26 +65,26 @@
               <v-list>
                 <v-list-item v-for="item in selectedItems" :key="item.id">
                   <v-list-item-content>
-                    <v-list-item-title>{{ item.name }}</v-list-item-title>
+                    <v-list-item-title>{{ item.product_name }}</v-list-item-title>
                     <v-list-item-subtitle>
-                      ຈຳນວນ: {{ item.quantity }} | ລາຄາ: {{ item.price }} {{ item.currencode }}
+                      ຈຳນວນ: {{ item.quantity }} | ລາຄາ: {{ item.price * item.quantity }} LAK
                     </v-list-item-subtitle>
                   </v-list-item-content>
                   <v-btn @click="increaseQuantity(item)" color="green">+</v-btn>
                   <v-btn @click="decreaseQuantity(item)" color="red">-</v-btn>
                 </v-list-item>
               </v-list>
-              <p>VAT: {{ vat }} k</p>
-              <p>ລາຄາລວມ: {{ totalPriceWithVat }} k</p>
+              <p>VAT: {{ vat }} LAK</p>
+              <p>ລາຄາລວມ: {{ totalPriceWithVat }} LAK</p>
               <v-text-field
-    label="ຈຳນວນເງິນທີ່ຊຳລະ"
-    v-model="paymentAmount"
-    @input="calculateChange" 
-    variant="outlined"
-  ></v-text-field>
-  <p :style="{ color: changeColor }">
-    {{ changeMessage }}
-  </p>
+                label="ຈຳນວນເງິນທີ່ຊຳລະ"
+                v-model="paymentAmount"
+                @input="calculateChange"
+                variant="outlined"
+              ></v-text-field>
+              <p :style="{ color: changeColor }">
+                {{ changeMessage }}
+              </p>
               <v-btn @click="generateBill" color="primary">ອອກໃບບິນ</v-btn>
               <v-btn @click="resetPayment" color="secondary" class="mt-2">ລ້າງຂໍ້ມູນ</v-btn>
             </v-col>
@@ -96,68 +96,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import Swal from 'sweetalert2';
+import { ref, computed, onMounted } from "vue";
+import Swal from "sweetalert2";
+import { useProductStore } from "@/stores/product";
 
-const data = ref([
-  {
-    id: 1,
-    type: "ດີເຈັບຫົວ",
-    barcode: "6786543668",
-    name: "ດີຫວັດລາວ",
-    price: 15000,
-    stem: "100",
-    currencode: "LAK",
-    URL: "https://opcpharma.com/wp-content/uploads/2023/03/Para-OPC_80mg_Hop-2-goi.webp",
-  },
-  {
-    id: 2,
-    type: "ດີກະເພາະ",
-    barcode: "123456789",
-    name: "ດີຫວັດລາວ",
-    price: 10000,
-    stem: "100",
-    currencode: "LAK",
-    URL: "https://opcpharma.com/wp-content/uploads/2023/03/Para-OPC_80mg_Hop-2-goi.webp",
-  },
-  {
-    id: 2,
-    type: "ດີກະເພາະ",
-    barcode: "123456789",
-    name: "ດີຫວັດລາວ",
-    price: 10000,
-    stem: "100",
-    currencode: "LAK",
-    URL: "https://opcpharma.com/wp-content/uploads/2023/03/Para-OPC_80mg_Hop-2-goi.webp",
-  },
-  {
-    id: 2,
-    type: "ດີກະເພາະ",
-    barcode: "123456789",
-    name: "ດີຫວັດລາວ",
-    price: 10000,
-    stem: "100",
-    currencode: "LAK",
-    URL: "https://opcpharma.com/wp-content/uploads/2023/03/Para-OPC_80mg_Hop-2-goi.webp",
-  },
-]);
+const product = useProductStore();
+const URL = "http://127.0.0.1:8080";
 
-const selectedItems = ref([]);
-const selectedType = ref('');
-const searchBarcode = ref('');
-const paymentAmount = ref(0);
+const selectedItems = ref<any[]>([]);
+const selectedType = ref("");
+const searchBarcode = ref("");
+const paymentAmount = ref<number | string>(0);
 const currencyCode = "LAK";
 const change = ref(0);
 
-const types = computed(() => [...new Set(data.value.map(item => item.type))]);
+onMounted(() => {
+  product.Getdata();
+});
+
+const data = computed(() => product.response_query_data?.Items || []);
+
+const types = computed(() => [...new Set(data.value.map((item) => item.Category?.name || "ບໍ່ມີປະເພດ"))]);
 
 const filteredData = computed(() => {
   let filtered = data.value;
   if (selectedType.value) {
-    filtered = filtered.filter(item => item.type === selectedType.value);
+    filtered = filtered.filter((item) => item.Category?.name === selectedType.value);
   }
   if (searchBarcode.value) {
-    filtered = filtered.filter(item => item.barcode.includes(searchBarcode.value));
+    filtered = filtered.filter((item) => item.barcode.includes(searchBarcode.value));
   }
   return filtered;
 });
@@ -168,18 +135,20 @@ const totalPriceWithVat = ref(0);
 
 const calculateTotalPrice = () => {
   totalPrice.value = selectedItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  vat.value = totalPrice.value * 0.1; // Assuming VAT is 10%
+  vat.value = totalPrice.value * 0.1; // VAT 10%
   totalPriceWithVat.value = totalPrice.value + vat.value;
   calculateChange();
 };
 
 const calculateChange = () => {
-  if (paymentAmount.value >= totalPriceWithVat.value) {
-    change.value = paymentAmount.value - totalPriceWithVat.value; // ເງິນທອນ
+  const payment = typeof paymentAmount.value === "string" ? parseFloat(paymentAmount.value) || 0 : paymentAmount.value;
+  if (payment >= totalPriceWithVat.value) {
+    change.value = payment - totalPriceWithVat.value;
   } else {
-    change.value = paymentAmount.value - totalPriceWithVat.value; // ຈຳນວນເງິນທີ່ຍັງບໍ່ຄົບ
+    change.value = payment - totalPriceWithVat.value;
   }
 };
+
 const changeMessage = computed(() => {
   if (change.value > 0) {
     return `ເງິນທອນ: ${change.value} ${currencyCode}`;
@@ -189,17 +158,15 @@ const changeMessage = computed(() => {
     return `ເງິນທອນ: 0 ${currencyCode}`;
   }
 });
+
 const changeColor = computed(() => {
-  if (change.value > 0) {
-    return 'green'; 
-  } else if (change.value < 0) {
-    return 'red'; 
-  } else {
-    return 'black'; 
-  }
+  if (change.value > 0) return "green";
+  if (change.value < 0) return "red";
+  return "black";
 });
-const selectItem = (item) => {
-  const existingItem = selectedItems.value.find(selected => selected.id === item.id);
+
+const selectItem = (item: any) => {
+  const existingItem = selectedItems.value.find((selected) => selected.id === item.id);
   if (existingItem) {
     existingItem.quantity += 1;
   } else {
@@ -208,35 +175,35 @@ const selectItem = (item) => {
   calculateTotalPrice();
 };
 
-const increaseQuantity = (item) => {
-  const existingItem = selectedItems.value.find(selected => selected.id === item.id);
+const increaseQuantity = (item: any) => {
+  const existingItem = selectedItems.value.find((selected) => selected.id === item.id);
   if (existingItem) {
     existingItem.quantity += 1;
     calculateTotalPrice();
   }
 };
 
-const decreaseQuantity = (item) => {
-  const existingItem = selectedItems.value.find(selected => selected.id === item.id);
+const decreaseQuantity = (item: any) => {
+  const existingItem = selectedItems.value.find((selected) => selected.id === item.id);
   if (existingItem && existingItem.quantity > 1) {
     existingItem.quantity -= 1;
     calculateTotalPrice();
   } else if (existingItem && existingItem.quantity === 1) {
-    selectedItems.value = selectedItems.value.filter(selected => selected.id !== item.id);
+    selectedItems.value = selectedItems.value.filter((selected) => selected.id !== item.id);
     calculateTotalPrice();
   }
 };
 
 const selectByBarcode = () => {
-  const item = data.value.find(item => item.barcode === searchBarcode.value);
+  const item = data.value.find((item) => item.barcode === searchBarcode.value);
   if (item) {
     selectItem(item);
-    searchBarcode.value = '';
+    searchBarcode.value = "";
   } else {
     Swal.fire({
-      icon: 'error',
-      title: 'Not Found',
-      text: 'No item found with the given barcode',
+      icon: "error",
+      title: "ບໍ່ພົບ",
+      text: "ບໍ່ມີສິນຄ້າທີ່ມີບາໂຄດນີ້",
     });
   }
 };
@@ -244,17 +211,18 @@ const selectByBarcode = () => {
 const generateBill = () => {
   if (selectedItems.value.length === 0) {
     Swal.fire({
-      icon: 'error',
-      title: 'No Items Selected',
-      text: 'Please select items before generating a bill.',
+      icon: "error",
+      title: "ບໍ່ມີສິນຄ້າ",
+      text: "ກະລຸນາເລືອກສິນຄ້າກ່ອນອອກໃບບິນ",
     });
     return;
   }
 
-  if (paymentAmount.value < totalPriceWithVat.value) {
+  const payment = typeof paymentAmount.value === "string" ? parseFloat(paymentAmount.value) || 0 : paymentAmount.value;
+  if (payment < totalPriceWithVat.value) {
     Swal.fire({
-      icon: 'error',
-      title: 'Insufficient Payment',
+      icon: "error",
+      title: "ເງິນບໍ່ພຽງພໍ",
       text: `ຈຳນວນເງິນທີ່ຍັງບໍ່ຄົບ: ${Math.abs(change.value)} ${currencyCode}`,
     });
     return;
@@ -281,12 +249,12 @@ const generateBill = () => {
         </thead>
         <tbody>
   `;
-  selectedItems.value.forEach(item => {
+  selectedItems.value.forEach((item) => {
     billContent += `
       <tr>
-        <td>${item.name}</td>
+        <td>${item.product_name}</td>
         <td>${item.quantity}</td>
-        <td>${item.price * item.quantity} ${item.currencode}</td>
+        <td>${item.price * item.quantity} ${currencyCode}</td>
       </tr>
     `;
   });
@@ -294,24 +262,24 @@ const generateBill = () => {
         </tbody>
       </table>
       <div class="bill-footer">
-        <p>VAT: ${vat.value} k</p>
-        <p>ລາຄາລວມ: ${totalPriceWithVat.value} k</p>
-        <p>ຈຳນວນເງິນທີ່ຊຳລະ: ${paymentAmount.value} k</p>
-        <p>ເງິນທອນ: ${change.value} k</p>
+        <p>VAT: ${vat.value} ${currencyCode}</p>
+        <p>ລາຄາລວມ: ${totalPriceWithVat.value} ${currencyCode}</p>
+        <p>ຈຳນວນເງິນທີ່ຊຳລະ: ${payment} ${currencyCode}</p>
+        <p>ເງິນທອນ: ${change.value} ${currencyCode}</p>
       </div>
     </div>
   `;
 
   Swal.fire({
-    title: 'ບິນຂາຍ',
+    title: "ບິນຂາຍ",
     html: billContent,
     showCancelButton: true,
-    confirmButtonText: 'Print',
-    cancelButtonText: 'Close',
+    confirmButtonText: "ພິມ",
+    cancelButtonText: "ປິດ",
     width: 600,
-    padding: '3em',
-    background: '#fff',
-    backdrop: 'rgba(0,0,123,0.4) left top no-repeat',
+    padding: "3em",
+    background: "#fff",
+    backdrop: "rgba(0,0,123,0.4) left top no-repeat",
   }).then((result) => {
     if (result.isConfirmed) {
       window.print();

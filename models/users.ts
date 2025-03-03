@@ -1,19 +1,12 @@
 export interface UserLoginResponse {
-  error: null;
-  items: Items;
-  status: number;
-  timestamp: string;
-}
-
-export interface Items {
-  user: User;
-  token: string;
+  message: string;
+  token:   string;
+  user:    User;
 }
 
 export interface User {
-  id: string;
+  avatar:   string;
+  fullname: string;
+  id:       number;
   username: string;
-  status: number;
-  profile_image: string;
-  role: string;
 }
