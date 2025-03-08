@@ -8,7 +8,7 @@ import { UseGlobalStore } from "./global";
 
 interface Category {
   DeletedAt: null;
-  ID: number;
+  ID: string;
   Name: string;
   CreatedAt: string; 
   UpdatedAt: string;

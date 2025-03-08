@@ -1,7 +1,11 @@
 <script lang="ts" setup>
 import axios from "@/helpers/axios";
 import notfounfimages from "@/assets/img/404.png";
+import { UseAgencyStore } from "~/stores/agency";
+import { UseGlobalStore } from "~/stores/global";
 const notfoundref = ref(notfounfimages);
+import { UseGetFormatDatePicker } from "~/composables/global";
+import { CallSwal,GetImageUrl  } from "~/composables/global";
 
 const agencyStore = UseAgencyStore();
 const globalStore = UseGlobalStore();

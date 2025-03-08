@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { UseGlobalStore } from "~/stores/global";
 import notFoundImage from "@/assets/img/404.png";
 const notFoundUrl = ref(notFoundImage);
 const image_url = ref(null as string | null);

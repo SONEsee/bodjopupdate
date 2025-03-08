@@ -1,10 +1,26 @@
 import { defineStore } from "pinia";
 import { ProductModel } from "@/models";
 import axios from "@/helpers/axios";
+import { CallSwal, goPath } from "~/composables/global";
 
 export const useProductStore = defineStore("product", {
   state() {
     return {
+      data_form_creat:{
+product_name: "",
+category_id: "",
+quantity_in_stock: 0,
+expiry_date: "",
+price: 0,
+reorder_level: 0,
+barcode: "",
+product_image: "" as string | File,
+created_at: "",
+updated_at: "",
+deleted_at: "",
+
+      },
+      product: [] as ProductModel.ProductResponseItems[],
       response_query_data: {
         error: "",
         loading: false,
@@ -31,5 +47,25 @@ export const useProductStore = defineStore("product", {
         console.error("Error fetching products:", error);
       }
     },
+    async CreateData() {
+      try {
+        const {data ,status} = await axios.post<ProductModel.ProductResponseItems>(`/products`,this.data_form_creat);
+        if(status === 200){
+          this.product.push(data)
+          await CallSwal({
+            title: "ສຳເລັດ",
+            text: "ການບັນທຶກຂໍ້ມູນສຳເລັດ",
+            icon: "success",
+            showCancelButton: false,
+            timer: 1500,
+          });
+          goPath("/product");
+        }
+
+      } catch (error) {
+        
+      }
+    }
   },
+  
 });

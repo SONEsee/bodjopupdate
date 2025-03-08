@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 const menu = ref(false);
+import { UseGlobalStore } from '~/stores/global';
 const globalStore = UseGlobalStore();
 const image_url = ref("" as string | "");
 const props = defineProps({

@@ -100,13 +100,15 @@ export const UseGlobalStore = defineStore("global", {
         if (typeof fileLink === "object") {
           return URL.createObjectURL(fileLink) ?? "";
         }
-
-        const res = await axios.get("/api/v1/files/get-file", {
-          params: {
-            q: fileLink,
-          },
-          responseType: "blob",
+        const res = await axios.get(fileLink, {
+          responseType: "blob", 
         });
+        // const res = await axios.get("", {
+        //   params: {
+        //     q: fileLink,
+        //   },
+        //   responseType: "blob",
+        // });
 
         if (res.status === 200) {
           return URL.createObjectURL(res.data);
