@@ -15,10 +15,10 @@ const categoryData = computed(() => {
     : null;
 });
 
-// Reactive variable ສຳລັບການແກ້ໄຂຊື່
+
 const updatedName = ref("");
 
-// ດຶງຂໍ້ມູນເມື່ອ component mount
+
 onMounted(async () => {
   const id = route.query.id?.toString() ?? null;
   if (id) {

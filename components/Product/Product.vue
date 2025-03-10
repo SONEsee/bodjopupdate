@@ -2,7 +2,24 @@
 import { ref, onMounted, computed } from "vue";
 import { useProductStore } from "~/stores/product";
 import { CallSwal, goPath } from "~/composables/global";
+import { DefaultSwalError } from "~/composables/global";
 
+const onDeleteProduct = async (id:  string) => {
+ const res = await product.DeleteData(id);
+ if(res instanceof Error){
+   return DefaultSwalError(res.message)
+ }
+ const notification = await CallSwal({
+    icon: "success",
+    title: "ສຳເລັດ",
+    text: "ລົບຂໍ້ມູນສຳເລັດ",
+  });
+  if (notification.isConfirmed) {
+    await product.Getdata();
+  } else {
+    await product.Getdata();
+};
+}
 const headers = [
   { title: "ຊື່ສິນຄ້າ", key: "product_name" },
   { title: "ຈຳນວນຢາ", key: "quantity_in_stock" },
@@ -21,20 +38,6 @@ const res = computed(() => product.response_query_data?.Items || []);
 onMounted(() => {
   product.Getdata();
 });
-
-// // ຟັງຊັນການຈັດການ Actions (ຕົວຢ່າງ)
-// const editItem = (item: any) => {
-//   CallSwal("info", "ແກ້ໄຂ", `ກຳລັງແກ້ໄຂສິນຄ້າ: ${item.product_name}`);
-// };
-
-// const deleteItem = (item: any) => {
-//   CallSwal("warning", "ລຶບ", `ຕ້ອງການລຶບສິນຄ້າ: ${item.product_name} ບໍ?`, true).then((result) => {
-//     if (result.isConfirmed) {
-//       // ສົ່ງ request ໄປ backend ຖ້າຕ້ອງການ
-//       CallSwal("success", "ສຳເລັດ", "ລຶບສິນຄ້າສຳເລັດ!");
-//     }
-//   });
-// };
 </script>
 
 <template>
@@ -67,16 +70,29 @@ onMounted(() => {
     </template>
 
     <template #item.actions="{ item }">
-      <v-btn color="" small class="mr-2 text-primary" @click="" flat>
-        <v-icon>mdi-pencil</v-icon>
+      <v-btn
+        color=""
+        small
+        class="mr-2 text-info"
+        @click="goPath(`product/detail/?id=${item.id}`)"
+        flat
+        icon="mdi-eye"
+      >
       </v-btn>
-      <v-btn color="" class="text-error" small @click="" flat>
-        <v-icon>mdi-delete</v-icon>
+      <v-btn
+        color=""
+        small
+        class="mr-2 text-primary"
+        @click="goPath(`product/update/?id=${item.id}`)"
+        flat
+        icon="mdi-pencil"
+      >
+      </v-btn>
+
+      <v-btn color="" class="text-error" small @click="onDeleteProduct(item.id)" flat icon="mdi-delete">
       </v-btn>
     </template>
   </v-data-table>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

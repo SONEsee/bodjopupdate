@@ -22,7 +22,7 @@
               label="ກັ່ນຕອງຕາມປະເພດ"
               :items="types"
               v-model="selectedType"
-              @change="filterByType"
+              
               variant="outlined"
             ></v-select>
           </v-col>
@@ -38,7 +38,7 @@
         <v-row>
           <v-col cols="12" md="3" v-for="item in filteredData" :key="item.id">
             <v-card flat class="rounded-lg">
-              <v-chip class="ma-2" label>{{ item.quantity_in_stock }}</v-chip>
+              <v-chip class="ma-2" label>{{ item.reorder_level }}</v-chip>
               <v-container class="d-flex justify-center">
                 <v-img
                   :src="`${URL}/${item.product_image}`"
@@ -51,6 +51,7 @@
                 ></v-img>
               </v-container>
               <p>ຊື່ສິນຄ້າ: {{ item.product_name }}</p>
+              <p>ປະເພດ: {{ item.Category.Name }}</p>
               <p>ລາຄາ: {{ item.price }} LAK</p>
               <v-btn @click="selectItem(item)" color="green">ເລືອກ</v-btn>
             </v-card>
@@ -116,12 +117,12 @@ onMounted(() => {
 
 const data = computed(() => product.response_query_data?.Items || []);
 
-const types = computed(() => [...new Set(data.value.map((item) => item.Category?.name || "ບໍ່ມີປະເພດ"))]);
+const types = computed(() => [...new Set(data.value.map((item) => item.Category?.Name || "ບໍ່ມີປະເພດ"))]);
 
 const filteredData = computed(() => {
   let filtered = data.value;
   if (selectedType.value) {
-    filtered = filtered.filter((item) => item.Category?.name === selectedType.value);
+    filtered = filtered.filter((item) => item.Category?.Name === selectedType.value);
   }
   if (searchBarcode.value) {
     filtered = filtered.filter((item) => item.barcode.includes(searchBarcode.value));

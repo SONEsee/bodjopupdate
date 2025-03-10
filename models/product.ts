@@ -12,7 +12,7 @@ export interface ProductResponseItems {
     price:             number;
     reorder_level:     number;
     barcode:           string;
-    product_image:     string | null;
+    product_image: string | File | null;
     created_at:        Date;
     updated_at:        Date;
     deleted_at:        null;
@@ -21,7 +21,7 @@ export interface ProductResponseItems {
 
 export interface Category {
     id:         string;
-    name:       string;
+    Name:       string;
     created_at: Date;
     updated_at: Date;
     deleted_at: null;

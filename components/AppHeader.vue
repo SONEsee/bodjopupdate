@@ -89,17 +89,18 @@ const items = ref([
   {
     title: "ຈັດການຂໍ້ມູນ",
     menu: [
+         {
+        text: "ຂາຍຢາ",
+        icon: "mdi-network-pos",
+        to: "/home",
+      },
       { text: "ຈັດການຂໍ້ມູນປະເພດຂອງຢາ", icon: "mdi-shape-plus-outline", to: "/category" },
       {
-        text: "ຈັດການປະເພດລາຍຈ່າຍ",
-        icon: "mdi-cash-edit",
-        to: "/expense_type_managements",
+        text: "ຈັດການຢາ",
+        icon: "mdi-pill-multiple",
+        to: "/product",
       },
-      {
-        text: "ຈັດການຂໍ້ມູນອຸປະກອນ",
-        icon: "mdi-devices",
-        to: "/devices",
-      },
+   
     ],
   },
 ]);
