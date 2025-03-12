@@ -6,28 +6,33 @@
           <v-col cols="12" md="4">
             <v-row>
               <v-col cols="12" md="6">
-                <v-btn color="#4CAF50" flat class="rounded-lg ma-2 d-flex justify-start" block>
-                  <p>ສະແດງຍອດຂາຍ</p>
+                <v-btn color="#4CAF50" flat class="rounded-lg" style="font-size: small;">
+                  ສະແດງຍອດຂາຍ
                 </v-btn>
               </v-col>
               <v-col cols="12" md="6">
                 <div class="d-flex justify-end align-center">
-                  <v-btn icon="mdi-cart-percent" size="50" color="#4CAF50"></v-btn>
+                  <v-btn
+                    icon="mdi-cart-percent"
+                    size="40"
+                    color="#4CAF50"
+                  ></v-btn>
                 </div>
               </v-col>
             </v-row>
           </v-col>
           <v-col cols="12" md="3">
             <v-select
+              density="compact"
               label="ກັ່ນຕອງຕາມປະເພດ"
               :items="types"
               v-model="selectedType"
-              
               variant="outlined"
             ></v-select>
           </v-col>
           <v-col cols="12" md="5">
             <v-text-field
+              density="compact"
               label="ຄົ້ນຫາດ້ວຍບາໂຄດ"
               v-model="searchBarcode"
               @keyup.enter="selectByBarcode"
@@ -50,9 +55,9 @@
                   :alt="item.product_name"
                 ></v-img>
               </v-container>
-              <p>ຊື່ສິນຄ້າ: {{ item.product_name }}</p>
-              <p>ປະເພດ: {{ item.Category.Name }}</p>
-              <p>ລາຄາ: {{ item.price }} LAK</p>
+              <p style="font-size: small;">ຊື່ສິນຄ້າ: {{ item.product_name }}</p>
+              <p style="font-size: small;">ປະເພດ: {{ item.Category.Name }}</p>
+              <p style="font-size: small;">ລາຄາ: {{ item.price }} LAK</p>
               <v-btn @click="selectItem(item)" color="green">ເລືອກ</v-btn>
             </v-card>
           </v-col>
@@ -62,33 +67,65 @@
         <v-card>
           <v-row>
             <v-col cols="12">
-              <h3>ລາຍການທີ່ເລືອກ</h3>
-              <v-list>
-                <v-list-item v-for="item in selectedItems" :key="item.id">
-                  <v-list-item-content>
-                    <v-list-item-title>{{ item.product_name }}</v-list-item-title>
-                    <v-list-item-subtitle>
-                      ຈຳນວນ: {{ item.quantity }} | ລາຄາ: {{ item.price * item.quantity }} LAK
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
-                  <v-btn @click="increaseQuantity(item)" color="green">+</v-btn>
-                  <v-btn @click="decreaseQuantity(item)" color="red">-</v-btn>
-                </v-list-item>
-              </v-list>
-              <p>VAT: {{ vat }} LAK</p>
-              <p>ລາຄາລວມ: {{ totalPriceWithVat }} LAK</p>
-              <v-text-field
-                label="ຈຳນວນເງິນທີ່ຊຳລະ"
-                v-model="paymentAmount"
-                @input="calculateChange"
-                variant="outlined"
-              ></v-text-field>
-              <p :style="{ color: changeColor }">
-                {{ changeMessage }}
-              </p>
-              <v-btn @click="generateBill" color="primary">ອອກໃບບິນ</v-btn>
-              <v-btn @click="resetPayment" color="secondary" class="mt-2">ລ້າງຂໍ້ມູນ</v-btn>
-            </v-col>
+              <v-container>
+                <h3>ລາຍການທີ່ເລືອກ</h3>
+                <v-list>
+                  <v-list-item v-for="item in selectedItems" :key="item.id">
+                    <v-list-item-content>
+                      <v-list-item-title>{{
+                        item.product_name
+                      }}</v-list-item-title>
+                      <v-list-item-subtitle>
+                        ຈຳນວນ: {{ item.quantity }} | ລາຄາ:
+                        {{ item.price * item.quantity }} LAK
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                    <v-btn
+                      @click="increaseQuantity(item)"
+                      small
+                      flat
+                      class="text-info"
+                      icon="mdi-plus-circle-outline"
+                    />
+                    <v-btn
+                      @click="decreaseQuantity(item)"
+                      icon="mdi-minus-circle-outline"
+                      small
+                      flat
+                      class="text-error"
+                    />
+                  </v-list-item>
+                </v-list>
+                <p>VAT: {{ vat }} LAK</p>
+                <p>ລາຄາລວມ: {{ totalPriceWithVat }} LAK</p>
+                <v-text-field
+                  class="mt-2"
+                  density="compact"
+                  label="ຈຳນວນເງິນທີ່ຊຳລະ"
+                  v-model="paymentAmount"
+                  @input="calculateChange"
+                  variant="outlined"
+                ></v-text-field>
+                <p :style="{ color: changeColor }">
+                  {{ changeMessage }}
+                </p>
+                <v-btn
+                  @click="generateBill"
+                  color="primary"
+                  small
+                  style="font-size: small"
+                  >ອອກໃບບິນ</v-btn
+                >
+                <v-btn
+                  @click="resetPayment"
+                  color="secondary"
+                  class="ml-2"
+                  small
+                  style="font-size: smaller"
+                  >ລ້າງຂໍ້ມູນ</v-btn
+                >
+              </v-container></v-col
+            >
           </v-row>
         </v-card>
       </v-col>
@@ -117,15 +154,21 @@ onMounted(() => {
 
 const data = computed(() => product.response_query_data?.Items || []);
 
-const types = computed(() => [...new Set(data.value.map((item) => item.Category?.Name || "ບໍ່ມີປະເພດ"))]);
+const types = computed(() => [
+  ...new Set(data.value.map((item) => item.Category?.Name || "ບໍ່ມີປະເພດ")),
+]);
 
 const filteredData = computed(() => {
   let filtered = data.value;
   if (selectedType.value) {
-    filtered = filtered.filter((item) => item.Category?.Name === selectedType.value);
+    filtered = filtered.filter(
+      (item) => item.Category?.Name === selectedType.value
+    );
   }
   if (searchBarcode.value) {
-    filtered = filtered.filter((item) => item.barcode.includes(searchBarcode.value));
+    filtered = filtered.filter((item) =>
+      item.barcode.includes(searchBarcode.value)
+    );
   }
   return filtered;
 });
@@ -135,14 +178,20 @@ const vat = ref(0);
 const totalPriceWithVat = ref(0);
 
 const calculateTotalPrice = () => {
-  totalPrice.value = selectedItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  totalPrice.value = selectedItems.value.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
   vat.value = totalPrice.value * 0.1; // VAT 10%
   totalPriceWithVat.value = totalPrice.value + vat.value;
   calculateChange();
 };
 
 const calculateChange = () => {
-  const payment = typeof paymentAmount.value === "string" ? parseFloat(paymentAmount.value) || 0 : paymentAmount.value;
+  const payment =
+    typeof paymentAmount.value === "string"
+      ? parseFloat(paymentAmount.value) || 0
+      : paymentAmount.value;
   if (payment >= totalPriceWithVat.value) {
     change.value = payment - totalPriceWithVat.value;
   } else {
@@ -167,7 +216,9 @@ const changeColor = computed(() => {
 });
 
 const selectItem = (item: any) => {
-  const existingItem = selectedItems.value.find((selected) => selected.id === item.id);
+  const existingItem = selectedItems.value.find(
+    (selected) => selected.id === item.id
+  );
   if (existingItem) {
     existingItem.quantity += 1;
   } else {
@@ -177,7 +228,9 @@ const selectItem = (item: any) => {
 };
 
 const increaseQuantity = (item: any) => {
-  const existingItem = selectedItems.value.find((selected) => selected.id === item.id);
+  const existingItem = selectedItems.value.find(
+    (selected) => selected.id === item.id
+  );
   if (existingItem) {
     existingItem.quantity += 1;
     calculateTotalPrice();
@@ -185,12 +238,16 @@ const increaseQuantity = (item: any) => {
 };
 
 const decreaseQuantity = (item: any) => {
-  const existingItem = selectedItems.value.find((selected) => selected.id === item.id);
+  const existingItem = selectedItems.value.find(
+    (selected) => selected.id === item.id
+  );
   if (existingItem && existingItem.quantity > 1) {
     existingItem.quantity -= 1;
     calculateTotalPrice();
   } else if (existingItem && existingItem.quantity === 1) {
-    selectedItems.value = selectedItems.value.filter((selected) => selected.id !== item.id);
+    selectedItems.value = selectedItems.value.filter(
+      (selected) => selected.id !== item.id
+    );
     calculateTotalPrice();
   }
 };
@@ -219,7 +276,10 @@ const generateBill = () => {
     return;
   }
 
-  const payment = typeof paymentAmount.value === "string" ? parseFloat(paymentAmount.value) || 0 : paymentAmount.value;
+  const payment =
+    typeof paymentAmount.value === "string"
+      ? parseFloat(paymentAmount.value) || 0
+      : paymentAmount.value;
   if (payment < totalPriceWithVat.value) {
     Swal.fire({
       icon: "error",
