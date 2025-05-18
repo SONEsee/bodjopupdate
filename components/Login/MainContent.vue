@@ -8,11 +8,11 @@
         <v-row>
           <v-col cols="12">
             <div class="text-center">
-              <v-avatar color="" size="150" style="border: 1px black solid;">
-                <img src="../../public/image/S2.png" alt="" width="200">
+              <v-avatar color="" size="150" >
+                <img src="../../assets/img/Logo.png" alt="" width="150">
               </v-avatar>
             </div>
-            <h3 class="text-center">ເຂົ້າສູ່ລະບົບ ຮ້ານຂາຍຢາສິງຄຳ</h3>
+            <h3 class="text-center">ເຂົ້າສູ່ລະບົບ ບໍລິສັດ ວີວີທີເອັສ ໂຊກໄຊຈະເລີນ ກໍ່ສ້າງ ຈຳກັດຜູ້ດຽວ</h3>
           </v-col>
 
           <v-col cols="12">
@@ -53,6 +53,11 @@
               ເຂົ້າສູ່ລະບົບ
             </v-btn>
           </v-col>
+          <v-col cols="12" class="py-0 my-0">
+            <div style="font-size: 10px">
+              version: ທົດລອງ
+            </div>
+          </v-col>
         </v-row>
       </v-card>
     </v-form>
@@ -90,31 +95,77 @@ const handleLogin = async () => {
     const { valid } = await form.value.validate();
     if (valid) {
       loading.value = true;
-      const res = await axios.post<UserModel.UserLoginResponse>(
-        "/login",
-        {
-          username: username.value,
-          password: password.value,
-        }
-      );
+      
+      const res = await axios.post("/api/auth/login", {
+        username: username.value,
+        password: password.value,
+      });
 
-      console.log("Response:", res);
+     
+      const { success, message, data } = res.data;
+      
+      if (success && data && data.token && data.user) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
 
-      if (res.status === 200 && res.data.token && res.data.user) {
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
+      
+        Swal.fire({
+          icon: 'success',
+          title: 'ສຳເລັດ',
+          text: message || 'ເຂົ້າສູ່ລະບົບສຳເລັດແລ້ວ',
+          timer: 1500,
+          showConfirmButton: false
+        });
 
-        setTimeout(() => {
-          goPath("/");
-        }, 1500);
+        
+        let timerInterval: ReturnType<typeof setInterval>;
+        Swal.fire({
+          title: 'ກຳລັງເຂົ້າສູ່ລະບົບ',
+          html: 'ຈະເຂົ້າສູ່ໜ້າຫຼັກໃນ <b></b> ວິນາທີ.',
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: () => {
+            Swal.showLoading();
+            const htmlContainer = Swal.getHtmlContainer();
+            if (htmlContainer) {
+              const b = htmlContainer.querySelector('b');
+              if (b) {
+                timerInterval = setInterval(() => {
+                  const timerLeft = Swal.getTimerLeft();
+                  if (timerLeft !== undefined) {
+                    b.textContent = Math.ceil(timerLeft / 1000).toString();
+                  }
+                }, 100);
+              }
+            }
+          },
+          willClose: () => {
+            clearInterval(timerInterval);
+            goPath("/");
+          }
+        });
       } else {
-        throw new Error("Invalid response structure");
+        throw new Error("ຂໍ້ມູນຕອບກັບບໍ່ຖືກຕ້ອງ");
       }
     }
-  } catch (error) {
-    console.error(error);
-    DefaultSwalError(error);
-  } finally {
+  } catch (error: any) {
+    console.error("Login error:", error);
+    
+    let errorMessage = "ມີຂໍ້ຜິດພາດໃນການເຂົ້າສູ່ລະບົບ";
+    
+    if (error.response) {
+      console.log("Response error data:", error.response.data);
+      errorMessage = error.response.data.message || `ຂໍ້ຜິດພາດ: ${error.response.status}`;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    Swal.fire({
+      icon: 'error',
+      title: 'ຂໍ້ຜິດພາດ',
+      text: errorMessage,
+    });
+    
     loading.value = false;
   }
 };
