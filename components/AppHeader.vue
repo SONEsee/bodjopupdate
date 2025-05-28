@@ -62,22 +62,25 @@
 
   <v-navigation-drawer v-model="drawer" permanent :rail="rail" order="1">
     <v-list nav density="comfortable">
-      <div v-for="(item, i) in items" :key="`item-${i}`">
-        <v-list-subheader>{{ item.title }}</v-list-subheader>
+      <div v-for="(item, i) in menuData " :key="`item-${i}`">
+        <!-- <template v-slot:prepend>
+            
+          </template> -->
+        <v-list-subheader><v-icon :icon="item.icon"></v-icon>{{ item.name }}</v-list-subheader>
 
         <v-list-item
           color="primary"
-          v-for="(menu, indexMenu) in item.menu"
+          v-for="(menu, indexMenu) in item.children"
           :key="`menu-${indexMenu}`"
           :value="menu"
           rounded="xl"
-          :to="menu.to"
+          :to="menu.url"
         >
           <template v-slot:prepend>
             <v-icon :icon="menu.icon"></v-icon>
           </template>
 
-          <v-list-item-title v-text="menu.text"></v-list-item-title>
+          <v-list-item-title v-text="menu.name"></v-list-item-title>
         </v-list-item>
       </div>
     </v-list>
@@ -90,52 +93,25 @@ const userData = User ? JSON.parse(User) : null;
 const user = userData ? userData : null;
 console.log("userData", userData);
 console.log("User", User);
-// const user = ref({
-//   fullName: "bih",
-//   initials: "n",
-//   email: "",
-// });
 
-const items = ref([
-  {
-    title: "ໜ້າຫຼັກ",
-    menu: [{ text: "Dashboard", icon: "mdi-clock", to: "/" }],
-  },
-  // {
-  //   title: "ຈັດການຂໍ້ມູນ",
-  //   menu: [
-  //        {
-  //       text: "ຂາຍຢາ",
-  //       icon: "mdi-network-pos",
-  //       to: "/home",
-  //     },
-  //     { text: "ຈັດການຂໍ້ມູນປະເພດຂອງຢາ", icon: "mdi-shape-plus-outline", to: "/category" },
-  //     {
-  //       text: "ຈັດການຢາ",
-  //       icon: "mdi-pill-multiple",
-  //       to: "/product",
-  //     },
-   
-  //   ],
-  // },
-  {
-    title: "ການຕັ້ງຄ່າ",
-    menu: [
-         {
-        text: "ຈັດການຂໍ້ມູນຜູ້ໃຊ້ງານ",
-        icon: "mdi-account-cog",
-        to: "/user",
-      },
-      // { text: "ຈັດການຂໍ້ມູນປະເພດຂອງຢາ", icon: "mdi-shape-plus-outline", to: "/category" },
-      // {
-      //   text: "ຈັດການຢາ",
-      //   icon: "mdi-pill-multiple",
-      //   to: "/product",
-      // },
-   
-    ],
-  },
-]);
+const menuStore = useMenuStore();
+
+
+const menuData = computed(() => {
+  return menuStore.getMenuData;
+});
+
+
+
+const userId = computed(() => {
+  return menuStore.user_id;
+});
+
+
+onMounted(() => {
+  menuStore.getMenu();
+});
+
 
 const drawer = ref(true);
 const rail = ref(false);

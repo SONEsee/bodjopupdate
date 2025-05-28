@@ -6,5 +6,6 @@
     class="d-flex flex-wrap justify-center align-center"
   >
     <div class="font-weight-black">ກຳລັງພັດທະນາ / Under construction</div>
+    <Login/>
   </section>
 </template>

@@ -6,6 +6,7 @@ export const UserStore = defineStore("user", {
     return {
       loading: false,
       respons_data_query: null as UserModel.Data | null,
+      
       request_query_data: {
         q: null as string | null,
         limit: 20,
