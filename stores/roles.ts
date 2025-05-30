@@ -13,6 +13,7 @@ export const useRoleStore = defineStore("role", {
       },
       response_data_role: null as RoleModel.RoleRespons | null,
       response_data_role_detail: null as RoleModel.RoleDetailRespons | null,
+    
       request_query_data: {
         q: null as string | null,
         limit: 20,
