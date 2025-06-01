@@ -55,7 +55,7 @@ export const usePermissions = () => {
     return permissions.length >= minCount
   }
 
-  // ກຣອງເມນູຕາມສິດ
+ 
   const filterMenusByPermission = (menus: any[], roleId?: number) => {
     const targetRoleId = roleId || currentUserRoleId.value
     if (!targetRoleId) return []

@@ -15,6 +15,7 @@ import * as CategoryModel from "./category";
 import * as RoleModel from "./roles";
 import * as MenuModel from "./menu";
 import * as MainModel from "./mainmenu";
+import * as PositionModel from "./positoin";
 
 export {
   UserModel,
@@ -34,4 +35,5 @@ export {
   RoleModel,
   MenuModel,
   MainModel,
+  PositionModel
 };
