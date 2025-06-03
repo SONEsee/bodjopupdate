@@ -15,6 +15,12 @@ const response = computed(() => {
 onMounted(() => {
   positoinStore.getData();
 });
+const Delete = async (id: number) => {
+  if (id) {
+    await positoinStore.deletPosition(id);
+    await positoinStore.getData();
+  }
+};
 </script>
 <template>
   <v-col cols="12">
@@ -22,8 +28,7 @@ onMounted(() => {
       :title="`ຈັດການຂໍ້ມູນຂັ້ນເງິນເດືອນ(${response.length})ລາຍການ`"
     />
     <div class="text-right mb-2">
-      <v-btn color="primary"
-      @click="goPath('/position/create')"
+      <v-btn color="primary" @click="goPath('/position/create')"
         ><v-icon icon="mdi-plus"></v-icon>ເພີ່ມຂໍ້ມູນຂັ້ນເງິເດືອນ</v-btn
       >
     </div>
@@ -38,6 +43,20 @@ onMounted(() => {
           class="text-primary"
           icon="mdi-eye"
           @click="goPath(`/position/detail/?id=${item.position_id}`)"
+        ></v-btn>
+        <v-btn
+          small
+          flat
+          class="text-info"
+          icon="mdi-pen"
+          @click="goPath(`/position/edit/?id=${item.position_id}`)"
+        ></v-btn>
+        <v-btn
+          small
+          flat
+          class="text-error"
+          icon="mdi-delete"
+          @click="Delete(item.position_id)"
         ></v-btn>
       </template>
     </v-data-table>

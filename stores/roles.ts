@@ -27,19 +27,15 @@ export const useRoleStore = defineStore("role", {
     async getRole() {
       this.isloading = true;
       try {
-        this.request_query_data.loading = true;
-        const res = await axios.get<RoleModel.RoleRespons>(`api/auth/role/`, {
-          params: {
-            ...this.request_query_data,
-          },
-        });
+       
+        const res = await axios.get<RoleModel.RoleRespons>(`api/auth/role/`);
         if (res.status === 200) {
           this.response_data_role = res.data;
         }
       } catch (error) {
       } finally {
         this.isloading = false;
-        this.request_query_data.loading = false;
+       
       }
     },
     async CreateRole() {

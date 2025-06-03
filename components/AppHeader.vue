@@ -9,10 +9,10 @@
       <template v-slot:activator="{ props }">
         <v-btn icon v-bind="props">
           <v-avatar class="" color="#BDBDBD" size="large">
-            <span class="text-h5" v-if="user.profileImage">
+            <span class="text-h5" v-if="user.profile_image">
                 <img
                 class="mt-2"
-                  :src="`http://localhost:8000${user.profileImage}`"
+                  :src="`http://localhost:8000${user.profile_image}`"
                   alt="Profile Image"
                   width="100%"
                   height="100%"
@@ -32,10 +32,10 @@
         <v-card-text>
           <div class="mx-auto text-center">
             <v-avatar color="brown">
-              <span class="text-h5" v-if="user.profileImage">
+              <span class="text-h5" v-if="user.profile_image">
                 <img
                 class="mt-2"
-                  :src="`http://localhost:8000${user.profileImage}`"
+                  :src="`http://localhost:8000${user.profile_image}`"
                   alt="Profile Image"
                   width="100%"
                   height="100%"
