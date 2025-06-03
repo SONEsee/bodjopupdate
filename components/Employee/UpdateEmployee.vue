@@ -1,0 +1,138 @@
+<script setup lang="ts">
+const title = "ແກ້ໄຂພະນັກງານ";
+const form = ref();
+const valid = ref(false);
+const menuStore = useMenuStore();
+const request = menuStore.form_create_data;
+const Destription = ()=>{
+    valid.value = !valid.value;
+}
+const handlSubmit = async ()=>{
+}
+</script>
+<template>
+  <GlobalTextTitleLine :title="title" />
+  <v-col cols="12">
+    <v-form ref="form" @submit.prevent="handlSubmit" >
+      <v-row>
+        <v-col cols="12" md="6">
+          <label>ລະຫັດພະນັກງານ</label>
+          <v-text-field
+          v-model="request.employee_id"
+          @click:append="Destription"
+            :rules="[(v: string) => !!v || 'ກະລຸນາລະຫັດພະນັກງານ']"
+            placeholder="ກະລຸນາລະຫັດພະນັກງານ"
+            density="compact"
+            variant="outlined"
+            hide-details="auto"
+            class="pb-4"
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12" md="6">
+          <label>ຊື່ພະນັກງານ</label>
+          <v-text-field
+          v-model="request.name"
+          @click:append="Destription"
+            :rules="[(v: string) => !!v || 'ກະລຸນາປ້ອນຊື່ ແລະ ນາມສະກຸນ']"
+            placeholder="ກະລຸນາປ້ອນຊື່ ແລະ ນາມສະກຸນ"
+            density="compact"
+            variant="outlined"
+            hide-details="auto"
+            class="pb-4"
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12" md="6">
+            <label>ເພດ</label>
+            <v-select
+                v-model="request.gender"
+                :items="['ຊາຍ', 'ຍິງ']"
+                :rules="[(v: string) => !!v || 'ກະລຸນາເລືອກເພດ']"
+                placeholder="ເລືອກເພດ"
+                density="compact"
+                variant="outlined"
+                hide-details="auto"
+                class="pb-4"
+            ></v-select>
+        </v-col>
+        <v-col cols="12" md="6">
+            <label>ວັນເດືອນປີເກີດ</label>
+            <v-text-field
+                v-model="request.birthdate"
+                type="date"
+                :rules="[(v: string) => !!v || 'ກະລຸນາເລືອກວັນເກີດ']"
+                placeholder="ກະລຸນາເລືອກວັນເກີດ"
+                density="compact"
+                variant="outlined"
+                hide-details="auto"
+                class="pb-4"
+            ></v-text-field>
+        </v-col>
+        <v-col cols="12" md="6">
+          <label>ທີ່ຢູ່</label>
+          <v-text-field
+          v-model="request.address"
+          @click:append="Destription"
+            :rules="[(v: string) => !!v || 'ກະລຸນາທີ່ຢູ່']"
+            placeholder="ກະລຸນາທີ່ຢູ່"
+            density="compact"
+            variant="outlined"
+            hide-details="auto"
+            class="pb-4"
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12" md="6">
+          <label>ເບີໂທ</label>
+          <v-text-field
+          v-model="request.phone"
+          @click:append="Destription"
+            :rules="[(v: string) => !!v || 'ກະລຸນາເບີໂທ']"
+            placeholder="ກະລຸນາເບີໂທ"
+            density="compact"
+            variant="outlined"
+            hide-details="auto"
+            class="pb-4"
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12" md="6">
+          <label>ການເຮັດວຽກ</label>
+          <v-text-field
+          v-model="request.schedule"
+          @click:append="Destription"
+            :rules="[(v: string) => !!v || 'ກະລຸນາເລືອການເຮັດວຽກ']"
+            placeholder="ກະລຸນາເລືອກການເຮັດວຽກ"
+            density="compact"
+            variant="outlined"
+            hide-details="auto"
+            class="pb-4"
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12" md="6">
+          <label>ຕຳແໜ່ງ</label>
+          <v-text-field
+          v-model="request.potision"
+          @click:append="Destription"
+            :rules="[(v: string) => !!v || 'ກະລຸນາເລືອກຕຳແໜ່ງ']"
+            placeholder="ກະລຸນາທີ່ເລືອກຕຳແໜ່ງ"
+            density="compact"
+            variant="outlined"
+            hide-details="auto"
+            class="pb-4"
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12" class="text-center">
+          <v-btn
+            text="ບັນທຶກ"
+            type="submit"
+            color="primary"
+            class="mr-4"
+          ></v-btn>
+          <v-btn
+            text="ຍົກເລີກ"
+            type="submit"
+            color="error"
+            @click="goPath(`/employee`)"
+          ></v-btn>
+        </v-col> </v-row
+    ></v-form>
+  </v-col>
+</template>
