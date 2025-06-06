@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import dayjs from '#build/dayjs.imports.mjs';
 import { goPath } from '#build/imports';
 const emStore = useEmployeeStore()
 const res= computed(()=>{
@@ -22,7 +23,12 @@ const headers = [
 
 
 const handleDeleteMenu = (id: number) => {
- 
+ if(id){
+  emStore.DeleteEmployee(id)
+ }
+};
+const formatNumber = (num: number) => {
+  return new Intl.NumberFormat().format(num);
 };
 </script>
 
@@ -30,13 +36,15 @@ const handleDeleteMenu = (id: number) => {
   <v-col cols="12">
     <v-row>
       <v-col cols="12" md="10">
-        <GlobalTextTitleLine :title="`ໜ້າຈັດການເມນູຫຼັກ / Manage Menu`" />
+        <GlobalTextTitleLine :title=" `ຈັດການຂໍ້ມູນພະນັກງານ (${formatNumber(
+            res?.length ?? 0
+          )}) ລາຍການ` " />
       </v-col>
       <v-col cols="12" md="2" class="text-right">
         <v-btn color="primary" @click="goPath(`/employee/create`)  ">
-          <v-icon icon="mdi-plus" /> ເພີ່ມຂໍ້ມູນເມນູ
+          <v-icon icon="mdi-plus" /> ເພີ່ມຂໍ້ມູນພະນັກງານ
         </v-btn>
-<v-btn color="primary" @click="goPath('/')"></v-btn>
+
       </v-col>
     </v-row>
 
@@ -48,7 +56,7 @@ const handleDeleteMenu = (id: number) => {
 
       <!-- ມື້ສ້າງ -->
       <template v-slot:item.created_at="{ item }">
-        {{ new Date(item.created_at).toLocaleDateString("lo-LA") }}
+        {{ dayjs(item.created_at).format("DD/MM/YYYY") }}
       </template>
 
       <!-- ຈັດການ -->

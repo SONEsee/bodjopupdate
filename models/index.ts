@@ -15,12 +15,10 @@ import * as CategoryModel from "./category";
 import * as RoleModel from "./roles";
 import * as MenuModel from "./menu";
 import * as MainModel from "./mainmenu";
-<<<<<<< HEAD
 import * as PositionModel from "./positoin";
-import * as SchedulesModel from "./schedules"
-=======
-import * as EmployeeModel from "./employee"
->>>>>>> 0a01f07cecc1dfae84255ea08fb69522c7138249
+import * as SchedulesModel from "./schedules";
+import * as EmpoyeesModel from "./employee";
+
 
 export {
   UserModel,
@@ -40,10 +38,8 @@ export {
   RoleModel,
   MenuModel,
   MainModel,
-<<<<<<< HEAD
   PositionModel,
-  SchedulesModel
-=======
-  EmployeeModel,
->>>>>>> 0a01f07cecc1dfae84255ea08fb69522c7138249
+  SchedulesModel,
+  EmpoyeesModel
+
 };

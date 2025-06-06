@@ -1,14 +1,123 @@
-import { EmployeeModel } from "~/models";
+import { EmpoyeesModel } from "~/models";
 import axios from "@/helpers/axios";
+import UpdateEmployee from "~/components/Employee/UpdateEmployee.vue";
 export const useEmployeeStore = defineStore("employee", {
   state(){
     return{
-      respons_data_employee: null as EmployeeModel.ResponeEmployee |null,
-      respone_detail_data: null as EmployeeModel.ResponeDetailEmployee | null,
+      form_create_data:{
+        name: "",
+        gender: "",
+        birthdate: "",
+        address: "",
+        phone: "",
+        schedule_id: null as number | null,
+        position_id: null as number | null,
+      },
+      form_update_data:{
+        name: "",
+        gender: "",
+        birthdate: "",
+        address: "",
+        phone: "",
+        schedule_id: null as number | null,
+        position_id: null as number | null,
+      },
+      respons_data_employee: null as EmpoyeesModel.ResponeEmployee |null,
+      respone_detail_data: null as EmpoyeesModel.ResponeDetailEmployee | null,
       isloading:false
     }
   },
 actions:{
+  async DeleteEmployee(id: number){
+    this.isloading = true
+    try {
+      const notification = await CallSwal({
+        title: "ຢືນຢັນການລຶບ",
+        text: "ທ່ານແນ່ໃຈບໍ່ວ່າຈະລຶບ?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "ແນ່ໃຈ",
+        cancelButtonText: "ຍົກເລີກ",
+      });
+      if(notification.isConfirmed){
+        const res = await axios.delete(`api/auth/employees/${id}`);
+        if(res.status === 204){
+          CallSwal({
+            title: "ສຳເລັດ",
+            text: "ລຶບສຳເລັດ",
+            icon: "success"
+          });
+          setTimeout(() => {
+            goPath("/employee");
+          }, 1000);
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting employee:", error);
+    }finally{
+      this.isloading = false
+    }
+  },
+  async UpdateEmployee(id: number){
+this.isloading = true
+    try {
+      const notification = await CallSwal({
+        title: "ຢືນຢັນການແກ້ໄຂ",
+        text: "ທ່ານແນ່ໃຈບໍ່ວ່າຈະແກ້ໄຂ?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "ແນ່ໃຈ",
+        cancelButtonText: "ຍົກເລີກ",
+      });if(notification.isConfirmed){
+        let req ={
+          name: this.form_update_data.name,
+          gender: this.form_update_data.gender,
+          birthdate: this.form_update_data.birthdate,
+          address: this.form_update_data.address,
+          phone: this.form_update_data.phone,
+          schedule_id: this.form_update_data.schedule_id,
+          position_id: this.form_update_data.position_id,
+
+        }
+        const res = await axios.put<EmpoyeesModel.ResponeEmployee>(`api/auth/employees/${id}`, req);
+        if(res.status === 200){
+          CallSwal({
+            title: "ສຳເລັດ",
+            text: "ແກ້ໄຂສຳເລັດ",
+            icon: "success"
+          });
+          setTimeout(() => {
+            goPath("/employee");
+          }, 1000);
+        }
+      }
+    } catch (error) { 
+      console.error("Error updating employee:", error);
+    }finally{
+      this.isloading = false
+    }
+  },
+  async CreateEmployee(){
+    this.isloading = true
+    try {
+      const res = await axios.post(`api/auth/employees`, this.form_create_data);
+      if(res.status === 201){
+        CallSwal({
+          title:"ສຳເລັດ",
+          text:"ສ້າງພະນັກງານສຳເລັດ",
+          icon:"success"
+        });
+        setTimeout(() => {
+          goPath("/employee");
+        }, 1000);
+      }
+    } catch (error) {
+      console.error("Error creating employee:", error);
+    }finally{
+      this.isloading = false
+    }
+  },
+
   async getDataEmployee(){
     this.isloading = true
     try {
