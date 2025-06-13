@@ -18,6 +18,7 @@ import * as MainModel from "./mainmenu";
 import * as PositionModel from "./positoin";
 import * as SchedulesModel from "./schedules";
 import * as EmpoyeesModel from "./employee";
+import * as AttendanModel from "./identities";
 
 
 export {
@@ -40,6 +41,7 @@ export {
   MainModel,
   PositionModel,
   SchedulesModel,
-  EmpoyeesModel
+  EmpoyeesModel,
+  AttendanModel
 
 };
