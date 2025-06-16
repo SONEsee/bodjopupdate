@@ -19,6 +19,7 @@ import * as PositionModel from "./positoin";
 import * as SchedulesModel from "./schedules";
 import * as EmpoyeesModel from "./employee";
 import * as AttendanModel from "./identities";
+import * as OTModel from "./ot";
 
 
 export {
@@ -42,6 +43,7 @@ export {
   PositionModel,
   SchedulesModel,
   EmpoyeesModel,
-  AttendanModel
+  AttendanModel,
+  OTModel
 
 };
