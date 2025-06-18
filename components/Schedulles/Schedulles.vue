@@ -26,6 +26,10 @@ const headers = [
     title: "ລຳດັບ",
     value: "no",
   },
+  {
+     title: "ຊື່ກະເຮັດວຽກ",
+    value: "work_shift",
+  },
 
   {
     title: "ໂມງເລີ່ມ",

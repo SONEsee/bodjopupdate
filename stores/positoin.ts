@@ -11,13 +11,13 @@ export const usePositoinStore = defineStore("positoin", {
       error: null as string | null,
       form_create_positoin: {
         position_name: "",
-        salary_rate: "",
-        ot_rate: "",
+        rate_ot: "",
+        base_sal_id: 0,
       },
       form_uadate_positoin: {
-        position_name: "",
-        salary_rate: "",
-        ot_rate: "",
+         position_name: "",
+        rate_ot: "",
+        base_sal_id: 0,
       },
     };
   },
@@ -34,8 +34,8 @@ export const usePositoinStore = defineStore("positoin", {
         if (notification.isConfirmed) {
           let req = {
             position_name: this.form_uadate_positoin.position_name,
-            salary_rate: this.form_uadate_positoin.salary_rate,
-            ot_rate: this.form_uadate_positoin.ot_rate,
+            base_sal_id: this.form_uadate_positoin.base_sal_id,
+            rate_ot: this.form_uadate_positoin.rate_ot,
           };
           const res = await axios.put(`api/auth/positions/${id}/`, req);
           if (res.status === 200) {

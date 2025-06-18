@@ -7,26 +7,26 @@ const positionStore = usePositoinStore();
 const id = Number(route.query.id) || 0;
 const visible = ref(false);
 const form = ref();
-const title = "ແກ້ໄຂຂໍ້ມູນຕຳແໜ່ງ"; // Updated title to reflect update action
+const title = "ແກ້ໄຂຂໍ້ມູນຕຳແໜ່ງ"; 
 
-// Computed property for position details
+
 const positionDetails = computed(() => {
   return positionStore.resposn_detail_data_positoin;
 });
 
-// Single onMounted with proper async handling
+
 onMounted(async () => {
   try {
-    // First get the position details
+  
     await positionStore.getDataDetail(id);
 
-    // Then populate the form if data exists
+    
     if (positionStore.resposn_detail_data_positoin) {
       const detail = positionStore.resposn_detail_data_positoin;
       positionStore.form_uadate_positoin = {
         position_name: detail.position_name,
-        salary_rate: detail.salary_rate,
-        ot_rate: detail.ot_rate,
+        base_sal_id: detail.base_sal_id,
+        ot_rate: detail.rate_ot,
       };
     }
   } catch (error) {
@@ -71,8 +71,8 @@ const handleCancel = () => {
     const detail = positionStore.resposn_detail_data_positoin;
     positionStore.form_uadate_positoin = {
       position_name: detail.position_name,
-      salary_rate: detail.salary_rate,
-      ot_rate: detail.ot_rate,
+      base_sal_id: detail.base_sal_id,
+      ot_rate: detail.rate_ot,
     };
   }
 };
@@ -119,7 +119,7 @@ const handleCancel = () => {
         <div class="mb-4">
           <label class="d-flex justify-start mb-2">ເງິນເດືອນ (Salary)</label>
           <v-text-field
-            v-model="positionStore.form_uadate_positoin.salary_rate"
+            v-model="positionStore.form_uadate_positoin.base_sal_id"
             :rules="[(v: string | number) => (!!v || v === 0) || 'ກະລຸນາປ້ອນເງິນເດືອນ']"
             placeholder="ກະລຸນາປ້ອນເງິນເດືອນ"
             density="compact"
@@ -135,7 +135,7 @@ const handleCancel = () => {
         <div class="mb-6">
           <label class="d-flex justify-start mb-2">ອັດຕາ OT</label>
           <v-text-field
-            v-model="positionStore.form_uadate_positoin.ot_rate"
+            v-model="positionStore.form_uadate_positoin.rate_ot"
             :rules="[(v: string | number) => (!!v || v === 0) || 'ກະລຸນາປ້ອນອັດຕາ OT']"
             placeholder="ກະລຸນາປ້ອນອັດຕາ OT"
             density="compact"

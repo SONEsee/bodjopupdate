@@ -4,8 +4,8 @@ export interface Positoin{
 export interface PositoinRespons {
     position_id:   number;
     position_name: string;
-    salary_rate:   string;
-    ot_rate:       string;
+    base_sal_id:   string;
+    rate_ot:       string;
     createdAt:     Date;
     updatedAt:     Date;
 }

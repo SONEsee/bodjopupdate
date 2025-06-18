@@ -12,10 +12,12 @@ export const useSchedulesStore = defineStore("schedules", {
       create_form_data: {
         shift_start: "",
         shift_end: "",
+        work_shift: "",
       },
       update_form_data: {
         shift_start: "",
         shift_end: "",
+        work_shift: "",
       },
     };
   },

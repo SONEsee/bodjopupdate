@@ -23,10 +23,10 @@ const handleSubmit = async () => {
         icon: "success",
       });
       
-      // ລີເຊັດຟອມຫຼັງຈາກສໍາເລັດ
+      
       form.value.reset();
       
-      // ອາດຈະປິດ dialog ຫຼື redirect ໄປໜ້າອື່ນ
+      
       visible.value = false;
     }
   } catch (error) {
@@ -44,11 +44,11 @@ const handleCancel = () => {
   visible.value = false; // ປິດ dialog ຖ້າມີ
 };
 
-// ສ້າງລາຍການເວລາສໍາລັບເລືອກ
+
 const generateTimeOptions = () => {
   const times = [];
   for (let hour = 0; hour < 24; hour++) {
-    for (let minute = 0; minute < 60; minute += 30) { // ທຸກໆ 30 ນາທີ
+    for (let minute = 0; minute < 60; minute += 30) {
       const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
       const displayTime = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
       times.push({
@@ -129,7 +129,7 @@ const validateTimeRange = () => {
         <!-- ເພີ່ມຊື່ກະຫນົດການຖ້າຕ້ອງການ -->
         <label class="d-flex justify-start">ຊື່ກະຫນົດການ (ທາງເລືອກ)</label>
         <v-text-field
-          v-model="request.schedule_name"
+          v-model="request.work_shift"
           placeholder="ຕົວຢ່າງ: ກະຫນົດການເຮັດວຽກປົກກະຕິ"
           density="compact"
           variant="outlined"

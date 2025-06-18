@@ -12,6 +12,7 @@ onMounted(async () => {
     schedStore.update_form_data={
         shift_start: detail.shift_start,
         shift_end: detail.shift_end,
+        work_shift: detail.work_shift,
     }
   }
 });
@@ -137,17 +138,17 @@ const validateTimeRange = () => {
           prepend-inner-icon="mdi-clock-end"
         ></v-select>
 
-<!--        
+       
         <label class="d-flex justify-start">ຊື່ກະຫນົດການ (ທາງເລືອກ)</label>
         <v-text-field
-          v-model="request.schedule_name"
+          v-model="request.work_shift"
           placeholder="ຕົວຢ່າງ: ກະຫນົດການເຮັດວຽກປົກກະຕິ"
           density="compact"
           variant="outlined"
           hide-details="auto"
           class="pb-6"
           :disabled="schedStore.isloading"
-        ></v-text-field> -->
+        ></v-text-field>
         
         <div class="d-flex justify-center gap-4">
           <v-btn

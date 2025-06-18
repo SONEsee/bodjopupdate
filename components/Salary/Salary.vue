@@ -173,7 +173,7 @@
                         </div>
                       </v-expand-transition>
 
-                      <!-- Calculation Result -->
+                   
                       <v-expand-transition>
                         <div v-if="getEmployeeResult(employee.employee_id)" class="result-section mt-4">
                           <v-divider class="mb-3"/>

@@ -1,3 +1,4 @@
+import { Basalary, DashBoardAdmin } from './../.nuxt/components.d';
 import * as UserModel from "./users";
 import * as UsermeModel from "./usersme";
 import * as ExpenseCreateModel from "./expensecreate";
@@ -20,6 +21,8 @@ import * as SchedulesModel from "./schedules";
 import * as EmpoyeesModel from "./employee";
 import * as AttendanModel from "./identities";
 import * as OTModel from "./ot";
+import * as BasalaryModel from "./basalary";
+import * as DashBoardAdminModel from "./dasboarht";
 
 
 export {
@@ -44,6 +47,8 @@ export {
   SchedulesModel,
   EmpoyeesModel,
   AttendanModel,
-  OTModel
+  OTModel,
+  BasalaryModel,
+  DashBoardAdminModel,
 
 };

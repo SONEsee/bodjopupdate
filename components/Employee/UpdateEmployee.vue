@@ -163,7 +163,7 @@ const handlSubmit = async () => {
             density="compact"
             :items="schedul"
             variant="outlined"
-            item-title="schedule_id"
+            item-title="work_shift"
             item-value="schedule_id"
           ></v-autocomplete>
           <!-- <v-text-field

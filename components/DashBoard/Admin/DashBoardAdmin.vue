@@ -1,7 +1,13 @@
 <script setup lang="ts">
 const emStore = useEmployeeStore();
 const ot = otStore();
-
+const resStore = useBasalaryStore();
+const absenden = computed(()=>{
+  return resStore.resposn_data_absent;
+});
+const daylate = computed(() => {
+  return resStore.late_for_day;
+});
 const resot = computed(() => {
   return ot.response_data_response_ot;
 });
@@ -11,8 +17,10 @@ const res = computed(() => {
 });
 
 onMounted(() => {
+  resStore.getAbsentden();
   ot.getOtTotal();
   emStore.getDataEmployee();
+  resStore.getLatedataforday()
 });
 </script>
 
@@ -20,6 +28,7 @@ onMounted(() => {
   <v-col cols="12">
     <div style="border: green solid 1px; border-radius: 5px">
       <v-container>
+      
         <v-row>
           <v-col cols="12" md="3">
             <v-card
@@ -107,7 +116,7 @@ onMounted(() => {
                 <v-card-subtitle
                   class="text-white text-center font-weight-bold pa-0"
                 >
-                  {{ formatNumber(Number(resot?.data.totalOt) || 0) }} ຄົນ
+                  {{ formatNumber(Number(daylate?.lateToday) || 0) }} ຄົນ
                 </v-card-subtitle>
               </div>
             </v-card>
@@ -138,7 +147,8 @@ onMounted(() => {
                   <v-card-subtitle
                     class="text-white text-center font-weight-bold pa-0"
                   >
-                    {{ formatNumber(Number(resot?.data.totalOt) || 0) }} ຄົນ
+                 
+                    {{ formatNumber(Number(absenden?.data.absentToday) || 0) }} ຄົນ
                   </v-card-subtitle>
                 </div></v-container
               >
@@ -159,6 +169,9 @@ onMounted(() => {
           </v-col>
         </v-row>
       </v-container>
+    </div>
+    <div style="border: green solid 1px; border-radius: 5px" class="mt-4">
+      <LateMont />
     </div>
   </v-col>
 </template>

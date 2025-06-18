@@ -18,6 +18,9 @@ const schedStore = useSchedulesStore();
 
     <v-row>
       <v-col cols="12" md="4">
+        <GlobalCardTitle :title="'ຊື່ກະ: '" :text="res?.work_shift" />
+      </v-col>
+      <v-col cols="12" md="4">
         <GlobalCardTitle :title="'ໂມງເລີ່ມ: '" :text="res?.shift_start" />
       </v-col>
       <v-col cols="12" md="4">

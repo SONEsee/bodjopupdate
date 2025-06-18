@@ -1,7 +1,7 @@
 <template>
   <div id="chart-container">
     <apexchart
-    width="100%"
+      width="100%"
       type="bar"
       height="350"
       :options="chartOptions"
@@ -11,6 +11,17 @@
 </template>
 
 <script setup lang="ts">
+const basStore = useBasalaryStore()
+
+// ໃຊ້ computed ເພື່ອຮັບຂໍ້ມູນຈາກ store
+const res = computed(() => {
+  return basStore.respose_data_total_late
+})
+
+onMounted(() => {
+  basStore.getLatedata()
+})
+
 // Define types for better TypeScript support
 interface ChartSeries {
   name: string
@@ -87,16 +98,55 @@ interface ChartOptions {
   }
 }
 
-// Chart data
-const series = ref<ChartSeries[]>([
-  {
-    name: 'Inflation',
-    data: [2.3, 3.1, 4.0, 10.1, 4.0, 3.6, 3.2, 2.3, 1.4, 0.8, 0.5, 0.2]
+// ສ້າງ computed ສຳລັບ series ທີ່ໃຊ້ຂໍ້ມູນຈາກ API
+const series = computed<ChartSeries[]>(() => {
+  // ກວດສອບໂຄງສ້າງຂໍ້ມູນຈາກ API
+  if (!res.value || 
+      res.value.status !== 'success' || 
+      !res.value.data || 
+      !res.value.data.lateDetails || 
+      !Array.isArray(res.value.data.lateDetails)) {
+    // ຂໍ້ມູນເລີ່ມຕົ້ນຖ້າຍັງບໍ່ມີຂໍ້ມູນຈາກ API
+    return [
+      {
+        name: 'ການຂາດວຽກ',
+        data: []
+      }
+    ]
   }
-])
 
-// Chart configuration
-const chartOptions = ref<ChartOptions>({
+  // ແປງຂໍ້ມູນຈາກ API ໃຫ້ເໝາະກັບ chart
+  const chartData = res.value.data.lateDetails.map(item => {
+    return item.count || 0
+  })
+
+  return [
+    {
+      name: 'ການຂາດວຽກ',
+      data: chartData
+    }
+  ]
+})
+
+// ສ້າງ computed ສຳລັບ categories (ວັນທີ) ຈາກຂໍ້ມູນ API
+const categories = computed(() => {
+  // ກວດສອບໂຄງສ້າງຂໍ້ມູນຈາກ API
+  if (!res.value || 
+      res.value.status !== 'success' || 
+      !res.value.data || 
+      !res.value.data.lateDetails || 
+      !Array.isArray(res.value.data.lateDetails)) {
+    return []
+  }
+
+  // ໃຊ້ວັນທີຈາກຂໍ້ມູນ API
+  return res.value.data.lateDetails.map(item => {
+    return item.date || 'N/A'
+  })
+})
+
+// Chart configuration ທີ່ໃຊ້ຂໍ້ມູນແບບ dynamic
+const chartOptions = computed<ChartOptions>(() => ({
   chart: {
     height: 350,
     type: 'bar',
@@ -105,14 +155,14 @@ const chartOptions = ref<ChartOptions>({
     bar: {
       borderRadius: 10,
       dataLabels: {
-        position: 'top', // top, center, bottom
+        position: 'top',
       },
     }
   },
   dataLabels: {
     enabled: true,
     formatter: function (val: number): string {
-      return val + "%"
+      return val.toString() // ບໍ່ເອົາ % ເພາະເປັນຈຳນວນຄົນ
     },
     offsetY: -20,
     style: {
@@ -121,7 +171,7 @@ const chartOptions = ref<ChartOptions>({
     }
   },
   xaxis: {
-    categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    categories: categories.value,
     position: 'top',
     axisBorder: {
       show: false
@@ -155,12 +205,12 @@ const chartOptions = ref<ChartOptions>({
     labels: {
       show: false,
       formatter: function (val: number): string {
-        return val + "%"
+        return val.toString()
       }
     }
   },
   title: {
-    text: 'ສະຖິຕິການຂາດວຽກຂອງພະນັກງານປະຈຳເດືອນ, 06/2025',
+    text: 'ສະຖິຕິການຂາດວຽກຂອງພະນັກງານຕາມວັນທີ',
     floating: true,
     offsetY: 330,
     align: 'center',
@@ -168,27 +218,24 @@ const chartOptions = ref<ChartOptions>({
       color: '#444'
     }
   }
-})
+}))
 
-
+// Functions ສຳລັບອັບເດດຂໍ້ມູນ
 const updateChartData = (newData: number[]) => {
-  series.value = [
-    {
-      name: 'Inflation',
-      data: newData
-    }
-  ]
+  // ຟັງຊັ່ນນີ້ອາດຈະບໍ່ຈຳເປັນອີກຕໍ່ໄປ ເພາະໃຊ້ computed ແລ້ວ
+  console.log('Manual update with:', newData)
 }
 
-// Optional: Method to update chart title
 const updateChartTitle = (newTitle: string) => {
-  chartOptions.value.title.text = newTitle
+  // ຟັງຊັ່ນນີ້ສາມາດໃຊ້ໄດ້ ແຕ່ຕ້ອງແກ້ໄຂເພາະ chartOptions ເປັນ computed ແລ້ວ
+  console.log('Update title to:', newTitle)
 }
 
 // Export functions if needed by parent component
 defineExpose({
   updateChartData,
-  updateChartTitle
+  updateChartTitle,
+  res 
 })
 </script>
 

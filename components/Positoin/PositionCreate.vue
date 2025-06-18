@@ -3,10 +3,30 @@ const positionStore = usePositoinStore();
 const visible = ref(false);
 const form = ref();
 const title = "ເພີ່ມຂໍ້ມູນສິດການໍາໃຊ້";
+const basStore = useBasalaryStore();
+
+const bas = computed(() => {
+  const data = basStore.response_data_basalary;
+  // ກວດສອບວ່າຂໍ້ມູນມີຢູ່ແລະເປັນ array ຫຼືບໍ່
+  if (!data || !Array.isArray(data)) {
+    return [];
+  }
+  
+  // ແປງຂໍ້ມູນໃຫ້ເໝາະສຳລັບ v-autocomplete
+  return data.map(item => ({
+    title: `${parseFloat(item.salary).toLocaleString()} LAK`, // ສະແດງເງິນເດືອນ
+    value: item.base_sal_id, // ຄ່າທີ່ຈະເກັບໄວ້
+    salary: item.salary // ຂໍ້ມູນເພີ່ມເຕີມ
+  }));
+});
 
 const Description = () => {
   visible.value = !visible.value;
 };
+
+onMounted(() => {
+  basStore.getBasalary();
+});
 
 const request = positionStore.form_create_positoin;
 
@@ -68,20 +88,26 @@ const handleCancel = () => {
         ></v-text-field>
 
         <label class="d-flex justify-start">ເງິນເດືອນ / Salary</label>
-        <v-text-field
-          v-model="request.salary_rate"
+        <v-autocomplete
+          v-model="request.base_sal_id"
+          :items="bas"
+          item-title="title"
+          item-value="value"
           :rules="[(v: string) => !!v || 'ກະລຸນາປ້ອນເງິນເດືອນ']"
-          placeholder="ກະລຸນາປ້ອນລາຍລະອຽດ"
+          placeholder="ກະລຸນາເລືອກເງິນເດືອນ"
           density="compact"
           variant="outlined"
           hide-details="auto"
           class="pb-6"
           :disabled="positionStore.isloading"
-          type="number"
-        ></v-text-field>
-        <label class="d-flex justify-start">ເງິນເດືອນ / OT</label>
+          :loading="!bas || bas.length === 0"
+          no-data-text="ບໍ່ມີຂໍ້ມູນ"
+          clearable
+        ></v-autocomplete>
+
+        <label class="d-flex justify-start">ຂັ້ນເງິນລວງເວລາ / OT</label>
         <v-text-field
-          v-model="request.ot_rate"
+          v-model="request.rate_ot"
           :rules="[(v: string) => !!v || 'ກະລຸນາປ້ອນເງິນໂບນັດ']"
           placeholder="ກະລຸນາປ້ອນລາຍລະອຽດ"
           density="compact"
@@ -89,7 +115,7 @@ const handleCancel = () => {
           hide-details="auto"
           class="pb-6"
           :disabled="positionStore.isloading"
-            type="number"
+          type="number"
         ></v-text-field>
 
         <v-btn

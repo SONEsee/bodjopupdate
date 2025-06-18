@@ -4,8 +4,8 @@ const positoinStore = usePositoinStore();
 const headers = [
   { title: "ID", value: "position_id" },
   { title: "ຂັ້ນຫຼືຕຳແໜ່ງ", value: "position_name" },
-  { title: "ເງິນເດືອນ", value: "salary_rate" },
-  { title: "ເງິນໂບນັດ", value: "ot_rate" },
+  { title: "ເງິນເດືອນ", value: "base_sal_id" },
+  { title: "ເງິນໂບນັດ", value: "rate_ot" },
   { title: "ມື້ສ້າງ", value: "createdAt" },
   { title: "ຈັດການ", value: "action" },
 ];
