@@ -1,6 +1,6 @@
 <template>
   <section class="login-container">
-    <!-- Background with gradient and animated shapes -->
+ 
     <div class="background-overlay">
       <div class="floating-shape shape-1"></div>
       <div class="floating-shape shape-2"></div>

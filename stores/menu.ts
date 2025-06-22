@@ -103,7 +103,7 @@ export const useMenuStore = defineStore("menu", {
           `api/auth/main_menu`,
           this.form_create_data
         );
-        if (req.status === 201) {
+        if (req.status === 201 || req.status === 200) {
           const notification = await CallSwal({
             title: "ສຳເລັດ",
             text: "ທ່ານສ້າງທຸກຢາງສຳເລັດ",

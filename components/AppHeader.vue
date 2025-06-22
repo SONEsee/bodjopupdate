@@ -4,7 +4,7 @@
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
     </template>
 
-    <v-app-bar-title>ລະບົບ.......</v-app-bar-title>
+    <v-app-bar-title>ລະບົບຈັດການເຂົ້າ-ອອກພະນັກງານ VVTS </v-app-bar-title>
     <v-menu min-width="200px" rounded>
       <template v-slot:activator="{ props }">
         <v-btn icon v-bind="props">
@@ -12,7 +12,7 @@
             <span class="text-h5" v-if="user.profile_image">
                 <img
                 class="mt-2"
-                  :src="`http://localhost:8000${user.profile_image}`"
+                  :src="`http://192.168.43.44:8000${user.profile_image}`"
                   alt="Profile Image"
                   width="100%"
                   height="100%"
@@ -35,7 +35,7 @@
               <span class="text-h5" v-if="user.profile_image">
                 <img
                 class="mt-2"
-                  :src="`http://localhost:8000${user.profile_image}`"
+                  :src="`http://192.168.43.44:8000${user.profile_image}`"
                   alt="Profile Image"
                   width="100%"
                   height="100%"

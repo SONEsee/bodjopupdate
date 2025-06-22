@@ -33,7 +33,7 @@ interface PieChartOptions {
 }
 
 // Chart data series
-const series = ref<number[]>([44, 55, 13, 43, 22])
+const series = ref<number[]>([8, 9])
 
 // Chart configuration options
 const chartOptions = ref<PieChartOptions>({
@@ -41,7 +41,7 @@ const chartOptions = ref<PieChartOptions>({
     width: 380,
     type: 'pie',
   },
-  labels: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E'],
+  labels: ['ກະເຊົ້າ', 'ກະແລງ'],
   responsive: [
     {
       breakpoint: 480,
@@ -73,7 +73,7 @@ const updateChartSize = (width: number) => {
 // Optional: Add more styling and configuration
 const enhancedChartOptions = ref({
   ...chartOptions.value,
-  colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0'],
+  colors: ['#008FFB', '#00E396'],
   legend: {
     position: 'right' as const,
     offsetY: 0,

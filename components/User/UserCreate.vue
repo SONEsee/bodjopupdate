@@ -1,39 +1,97 @@
 <script lang="ts" setup>
 import axios from "@/helpers/axios";
 import notfounfimages from "@/assets/img/404.png";
-const notfoundref = ref(notfounfimages);
-import { AgencyModel } from "@/models/";
+import { UserStore } from "@/stores/user";
+import { UseGlobalStore } from "@/stores/global";
 
-const agencyStore = UseAgencyStore();
+import { useEmployeeStore } from "@/stores/employee"; // ແກ້ໄຂ import
+import { ref, computed, onMounted } from "vue"; // ແກ້ໄຂ import
+import { useRouter } from "vue-router";
+
+const roleSore = useRoleStore();
+const emStore = useEmployeeStore();
+const router = useRouter();
+const userStore = UserStore();
 const globalStore = UseGlobalStore();
-const title = ref("ເພີ່ມຂໍ້ມູນຕົວແທນ");
+
+const response = computed(() => {
+  return roleSore.response_data_role || [];
+});
+
+const res = computed(() => {
+  return emStore.respons_data_employee;
+});
+
+const notfoundref = ref(notfounfimages);
+const title = ref("ເພີ່ມຂໍ້ມູນຜູ້ໃຊ້");
 const visible = ref(false);
 const loading = ref(false);
 const form = ref();
 const file = ref();
 
-const request = agencyStore.form_create_data;
+// ເພີ່ມ ref ສຳລັບ preview ຮູບ
+const imagePreview = ref<string | null>(null);
 
+const request = userStore.form_create_user;
 
-
-
-
-
+onMounted(() => {
+  emStore.getDataEmployee();
+  roleSore.getRole();
+});
 
 const openFile = () => {
   file.value.click();
 };
 
+// ແກ້ໄຂ function onFileChange
 const onFileChange = (event: Event) => {
-  console.log(`event`, event);
-  //@ts-ignore
-  const files = event.target.files;
-  let file = files[0];
-  console.log(`file`, file);
-  if (file) {
-    const value = file as File;
-    request.profile_image = value;
+  const target = event.target as HTMLInputElement;
+  const files = target.files;
+  
+  if (files && files.length > 0) {
+    const selectedFile = files[0];
+    console.log('Selected file:', selectedFile);
+    
+    // ກວດສອບປະເພດໄຟລ໌
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!allowedTypes.includes(selectedFile.type)) {
+      alert('ກະລຸນາເລືອກໄຟລ໌ຮູບພາບ (JPG, PNG)');
+      return;
+    }
+    
+    // ກວດສອບຂະໜາດໄຟລ໌ (ບໍ່ເກີນ 5MB)
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      alert('ຂະໜາດໄຟລ໌ໃຫຍ່ເກີນໄປ (ບໍ່ເກີນ 5MB)');
+      return;
+    }
+    
+    // ເກັບໄຟລ໌ສຳລັບສົ່ງໄປ server
+    request.profile_image = selectedFile;
+    
+    // ສ້າງ preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imagePreview.value = e.target?.result as string;
+    };
+    reader.readAsDataURL(selectedFile);
   }
+};
+
+// ແກ້ໄຂ function GetImageUrl
+const GetImageUrl = (image: string | File | null) => {
+  if (!image) return notfoundref.value;
+  
+  // ຖ້າມີ preview ໃຫ້ໃຊ້ preview
+  if (imagePreview.value) return imagePreview.value;
+  
+  if (typeof image === 'string') return image;
+  if (image instanceof File) return URL.createObjectURL(image);
+  
+  return notfoundref.value;
+};
+
+const goPath = (path: string) => {
+  router.push(path);
 };
 
 const submitForm = async () => {
@@ -41,72 +99,26 @@ const submitForm = async () => {
     const { valid } = await form.value.validate();
     if (valid) {
       loading.value = true;
-      var formData = new FormData();
-      let allowFileKey = ["profile_image"];
-      for (const [key, value] of Object.entries(request)) {
-        if (allowFileKey.includes(key)) {
-          if (Array.isArray(value)) {
-            //looping for upload
-            const files = value as unknown as File[];
-            if (files) {
-              for (let i = 0; i < files.length; i++) {
-                let file = files[i];
-                formData.append(key, file, file.name);
-              }
-            }
-          } else {
-            let file = (value as File) ?? null;
-            if (file !== null) {
-              formData.append(key, file, file.name);
-            }
-          }
-        } else if (key === "identities") {
-          formData.append("identities", JSON.stringify(value));
-          if (Array.isArray(value)) {
-            for (let i = 0; i < value.length; i++) {
-              const identity = value[i];
-              if (identity.file !== null) {
-                console.log(`iden`, identity.file.type);
-                formData.append(
-                  "identities_files",
-                  identity.file,
-                  `${i}.${identity.file.type.split("/")[1]}`
-                );
-              }
-            }
-          }
-        } else {
-          formData.append(key, value?.toString() ?? "");
-        }
-      }
-
-      const res = await axios.post("/api/v1/agency/new", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      if (res.status === 200) {
-        const notification = await CallSwal({
-          icon: "success",
-          title: "ສຳເລັດ",
-          text: "ບັນທຶກຂໍ້ມູນສຳເລັດ",
-        });
-        if (notification.isConfirmed) {
-          setTimeout(() => {
-            goPath("/agency");
-          }, 1200);
-        } else {
-          setTimeout(() => {
-            goPath("/agency");
-          }, 1200);
-        }
-      }
+      
+      await userStore.createUser();
+      
+      setTimeout(() => {
+        goPath("/user");
+      }, 1200);
     }
   } catch (error) {
     console.error(error);
   } finally {
     loading.value = false;
+  }
+};
+
+// ເພີ່ມ function ລຶບຮູບ
+const removeImage = () => {
+  request.profile_image = null;
+  imagePreview.value = null;
+  if (file.value) {
+    file.value.value = '';
   }
 };
 </script>
@@ -120,9 +132,14 @@ const submitForm = async () => {
         </v-col>
 
         <v-col cols="12" class="d-flex flex-wrap justify-end">
-          <v-btn color="primary" flat type="submit" :loading="loading"
-            >ບັນທຶກ</v-btn
+          <v-btn 
+            color="primary" 
+            flat 
+            type="submit" 
+            :loading="loading || userStore.loading"
           >
+            ບັນທຶກ
+          </v-btn>
         </v-col>
 
         <v-col cols="12" class="pt-12">
@@ -133,27 +150,39 @@ const submitForm = async () => {
                   <v-avatar
                     size="220"
                     class="mx-auto"
-                    :image="
-                      request.profile_image === null
-                        ? notfoundref
-                        : GetImageUrl(request.profile_image)
-                    "
+                    :image="GetImageUrl(request.profile_image)"
                   >
                   </v-avatar>
                 </v-col>
 
                 <v-col cols="12" class="d-flex flex-wrap justify-center">
-                  <v-btn
-                    class="mt-4 mb-7"
-                    width="180px"
-                    height="40px"
-                    color="primary"
-                    flat
-                    prepend-icon="mdi-cloud-upload-outline"
-                    text="ອັບໂຫຼດຮູບພາບ"
-                    @click="openFile"
-                  >
-                  </v-btn>
+                  <div class="d-flex flex-column align-center">
+                    <v-btn
+                      class="mt-4 mb-2"
+                      width="180px"
+                      height="40px"
+                      color="primary"
+                      flat
+                      prepend-icon="mdi-cloud-upload-outline"
+                      text="ອັບໂຫຼດຮູບພາບ"
+                      @click="openFile"
+                    >
+                    </v-btn>
+                    
+                    <!-- ເພີ່ມປຸ່ມລຶບຮູບ -->
+                    <v-btn
+                      v-if="request.profile_image"
+                      class="mb-4"
+                      width="180px"
+                      height="40px"
+                      color="error"
+                      flat
+                      prepend-icon="mdi-delete"
+                      text="ລຶບຮູບພາບ"
+                      @click="removeImage"
+                    >
+                    </v-btn>
+                  </div>
 
                   <input
                     type="file"
@@ -169,94 +198,7 @@ const submitForm = async () => {
             <v-col cols="8">
               <v-row>
                 <v-col cols="12" md="4">
-                  <label>ຊື່ ແລະ ນາມສະກຸນ / Fullname</label>
-                  <v-text-field
-                    @click:append-inner="visible = !visible"
-                    :rules="[(v: string) => !!v || 'ກະລຸນາປ້ອນຊື່ ແລະ ນາມສະກຸນ']"
-                    v-model="request.fullname"
-                    placeholder="ກະລຸນາປ້ອນຊື່ ແລະ ນາມສະກຸນ"
-                    density="compact"
-                    variant="outlined"
-                    hide-details="auto"
-                    class="pb-6"
-                  ></v-text-field>
-
-                  <label>ລະຫັດຕົວແທນ / Agency code</label>
-                  <v-text-field
-                    v-model="request.agency_code"
-                    :rules="[(v: string) => !!v || 'ກະລຸນາປ້ອນລະຫັດຕົວແທນ']"
-                    placeholder="ກະລຸນາປ້ອນລະຫັດຕົວແທນ"
-                    density="compact"
-                    hide-details="auto"
-                    variant="outlined"
-                    class="pb-6"
-                  ></v-text-field>
-
-                  
-                  <label>ລະຫັດຜ່ານ / Password</label>
-                  <v-text-field
-                    v-model="request.password"
-                    :rules="[(v: string) => !!v || 'ກະລຸນາປ້ອນລະຫັດຜ່ານ']"
-                    placeholder="ກະລຸນາປ້ອນລະຫັດຜ່ານ"
-                    density="compact"
-                    variant="outlined"
-                    hide-details="auto"
-                    class="pb-6"
-                  ></v-text-field>
-                </v-col>
-
-                <v-col cols="4">
-                  <label>ຊື່ຫຼິ້ນ / Nickname</label>
-                  <v-text-field
-                    v-model="request.nick_name"
-                    :rules="[(v: string) => !!v || 'ກະລຸນາປ້ອນຊື່ຫຼິນ']"
-                    placeholder="ກະລຸນາປ້ອນຊື່ຫຼິນ"
-                    density="compact"
-                    variant="outlined"
-                    hide-details="auto"
-                    class="pb-6"
-                  ></v-text-field>
-
-                  <label>ສິດການເຂົ້າໃຊ້ງານ / Role access</label>
-                  <v-select
-                    v-model="request.agency_type"
-                    :rules="[(v: string) => !!v || 'ກະລຸນາປ້ອນສິດການເຂົ້ານຳໃຊ້']"
-                    placeholder="ກະລຸນາປ້ອນສິດການເຂົ້ານຳໃຊ້"
-                    density="compact"
-                    variant="outlined"
-                    hide-details="auto"
-                    class="pb-6"
-                    :items="GetAgencyType()"
-                  ></v-select>
-
-                  
-
-                  <label>ຢືນຢັນລະຫັດຜ່ານ / Confirm password</label>
-                  <v-text-field
-                    v-model="request.confirm_password"
-                    hide-details="auto"
-                    :rules="[(v: string) => !!v || 'ກະລຸນາປ້ອນລະຫັດຜ່ານ']"
-                    placeholder="ກະລຸນາປ້ອນລະຫັດຜ່ານ"
-                    density="compact"
-                    variant="outlined"
-                    class="pb-6"
-                  ></v-text-field>
-                </v-col>
-
-                <v-col cols="4">
-                  <label>ເບີໂທລະສັບ / Phone number</label>
-                  <v-text-field
-                    v-model="request.phone_number"
-                    hide-details="auto"
-                    :rules="[(v: string) => !!v || 'ກະລຸນາປ້ອນເບີໂທລະສັບ']"
-                    placeholder="ກະລຸນາປ້ອນເບີໂທລະສັບ"
-                    density="compact"
-                    variant="outlined"
-                    class="pb-6"
-                  ></v-text-field>
-
-                
-                  <label>ຊື້ຜູ້ໃຊ້ງານ / Username</label>
+                  <label>ຊື່ຜູ້ໃຊ້ງານ / Username</label>
                   <v-text-field
                     v-model="request.username"
                     :rules="[(v: string) => !!v || 'ກະລຸນາປ້ອນຊື່ຜູ້ໃຊ້ງານ']"
@@ -267,30 +209,66 @@ const submitForm = async () => {
                     class="pb-6"
                   ></v-text-field>
 
-                  <label>ສະຖານະ / Status</label>
-                  <v-select
-                    v-model="request.status"
-                    :rules="[(v: string) => !!v || 'ກະລຸນາເລືອກສິດເຂົ້ານຳໃຊ້']"
-                    placeholder="ກາລຸນາເລືອກສິດເຂົ້ານຳໃຊ້"
+                  <label>ອີເມວ / Email</label>
+                  <v-text-field
+                    v-model="request.email"
+                    :rules="[
+                      (v: string) => !!v || 'ກະລຸນາປ້ອນອີເມວ',
+                      (v: string) => /.+@.+\..+/.test(v) || 'ອີເມວບໍ່ຖືກຕ້ອງ'
+                    ]"
+                    placeholder="ກະລຸນາປ້ອນອີເມວ"
                     density="compact"
-                    :items="GetDefaultStatus()"
+                    hide-details="auto"
+                    variant="outlined"
+                    class="pb-6"
+                  ></v-text-field>
+
+                  <label>ລະຫັດຜ່ານ / Password</label>
+                  <v-text-field
+                    v-model="request.password"
+                    :rules="[(v: string) => !!v || 'ກະລຸນາປ້ອນລະຫັດຜ່ານ']"
+                    placeholder="ກະລຸນາປ້ອນລະຫັດຜ່ານ"
+                    type="password"
+                    density="compact"
+                    variant="outlined"
+                    hide-details="auto"
+                    class="pb-6"
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="4">
+                  <label>ບົດບາດ / Role</label>
+                  <v-select
+                    v-model="request.role_id"
+                    :rules="[(v: number) => !!v || 'ກະລຸນາເລືອກບົດບາດ']"
+                    placeholder="ກະລຸນາເລືອກບົດບາດ"
+                    :items="response"
+                    item-title="name"
+                    item-value="role_id"
+                    density="compact"
                     variant="outlined"
                     hide-details="auto"
                     class="pb-6"
                   ></v-select>
-                </v-col>
-              </v-row>
-            </v-col>
-          </v-row>
-        </v-col>
 
-        <v-col cols="12">
-          <v-row>
-            <v-col cols="6"></v-col>
-            <v-col cols="6">
-              <v-row>
-               
-                
+                  <label>ພະນັກງານ / Employee</label>
+                  <v-select
+                    v-if="res"
+                    v-model="request.employee_id"
+                    placeholder="ກະລຸນາເລືອກພະນັກງານ"
+                    density="compact"
+                    variant="outlined"
+                    hide-details="auto"
+                    class="pb-6"
+                    :items="res"
+                    item-title="name"
+                    item-value="employee_id"
+                  ></v-select>
+                </v-col>
+
+                <v-col cols="4">
+                  <!-- ພື້ນທີ່ວ່າງ -->
+                </v-col>
               </v-row>
             </v-col>
           </v-row>

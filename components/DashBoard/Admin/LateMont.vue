@@ -3,6 +3,8 @@
    
     
     <apexchart
+    style="font-family: Noto Sans Lao;"
+    
       width="100%"
       type="area"
       height="350"

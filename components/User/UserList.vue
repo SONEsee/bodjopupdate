@@ -50,7 +50,21 @@ const onsetinput = async (input: string | null) => {
     await userStore.getUser();
   }
 };
+
+// ຟັງຊັນໃໝ່ສຳລັບການກະທຳຕ່າງໆ
+const handleEdit = (userId: number) => {
+  router.push(`/user/edit?id=${userId}`);
+};
+
+const handleDetail = (userId: number) => {
+  router.push(`/user/detail?id=${userId}`);
+};
+
+const handleDelete = async (userId: number, username: string) => {
+  await userStore.deleteUser(userId, username);
+};
 </script>
+
 <template>
   <div class="pa-6">
     <v-card elevation="0" tile width="100%" min-height="95vh" class="pa-6">
@@ -117,29 +131,55 @@ const onsetinput = async (input: string | null) => {
 
             <template v-slot:item.status="{ item }">
               <span v-if="item.status === true">
-                <v-chip color="info">ເປີດໃຊ້ງານ</v-chip>
+                <v-chip color="success" size="small">ເປີດໃຊ້ງານ</v-chip>
               </span>
               <span v-else>
-                <v-chip color="error">ປີດໃຊ້ງານ</v-chip>
+                <v-chip color="error" size="small">ປີດໃຊ້ງານ</v-chip>
               </span>
             </template>
 
             <template v-slot:item.actions="{ item }">
-              <v-btn
-                color="primary"
-                icon="mdi-pencil"
-                variant="text"
-                @click="goPath(`/user/edit?id=${item.id}`)"
-                size="small"
-              ></v-btn>
+              <div class="d-flex align-center">
+                <v-tooltip text="ແກ້ໄຂ">
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      color="primary"
+                      icon="mdi-pencil"
+                      variant="text"
+                      @click="handleEdit(item.id)"
+                      size="small"
+                    ></v-btn>
+                  </template>
+                </v-tooltip>
 
-              <v-btn
-                color="primary"
-                icon="mdi-eye"
-                variant="text"
-                @click="goPath(`/user/detail?id=${item.id}`)"
-                size="small"
-              ></v-btn>
+                <v-tooltip text="ເບິ່ງລາຍລະອຽດ">
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      color="info"
+                      icon="mdi-eye"
+                      variant="text"
+                      @click="handleDetail(item.id)"
+                      size="small"
+                    ></v-btn>
+                  </template>
+                </v-tooltip>
+
+                <v-tooltip text="ລຶບ">
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      color="error"
+                      icon="mdi-delete"
+                      variant="text"
+                      @click="handleDelete(item.id, item.username)"
+                      size="small"
+                      :loading="userStore.loading"
+                    ></v-btn>
+                  </template>
+                </v-tooltip>
+              </div>
             </template>
 
             <template v-slot:bottom>
