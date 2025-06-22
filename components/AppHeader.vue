@@ -12,7 +12,7 @@
             <span class="text-h5" v-if="user.profile_image">
                 <img
                 class="mt-2"
-                  :src="`http://192.168.43.44:8000${user.profile_image}`"
+                  :src="`http://127.0.0.1:8000${user.profile_image}`"
                   alt="Profile Image"
                   width="100%"
                   height="100%"
@@ -35,7 +35,7 @@
               <span class="text-h5" v-if="user.profile_image">
                 <img
                 class="mt-2"
-                  :src="`http://192.168.43.44:8000${user.profile_image}`"
+                  :src="`http://127.0.0.1:8000${user.profile_image}`"
                   alt="Profile Image"
                   width="100%"
                   height="100%"

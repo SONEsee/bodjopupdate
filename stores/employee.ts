@@ -1,6 +1,6 @@
 import { EmpoyeesModel } from "~/models";
 import axios from "@/helpers/axios";
-import UpdateEmployee from "~/components/Employee/UpdateEmployee.vue";
+
 export const useEmployeeStore = defineStore("employee", {
   state(){
     return{

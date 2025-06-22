@@ -56,24 +56,25 @@ export const usePositoinStore = defineStore("positoin", {
       }
     },
     async getData() {
-      this.isloading = true;
-      this.error = null;
-      try {
-        const res = await axios.get<PositionModel.Positoin>(
-          `api/auth/positions/`
-        );
-        if (res.status === 200) {
-          this.respons_data_positoin = res.data;
-        }
-      } catch (error) {
-        this.error =
-          error instanceof Error
-            ? error.message
-            : "An unexpected error occurred";
-      } finally {
-        this.isloading = false;
-      }
-    },
+  this.isloading = true;
+  this.error = null;
+  try {
+    
+    const res = await axios.get<PositionModel.PositoinRespons>(
+      `api/auth/positions/`
+    );
+    if (res.status === 200) {
+      this.respons_data_positoin = res.data;
+    }
+  } catch (error) {
+    this.error =
+      error instanceof Error
+        ? error.message
+        : "An unexpected error occurred";
+  } finally {
+    this.isloading = false;
+  }
+},
     async getDataDetail(id: number) {
       this.isloading = true;
       try {

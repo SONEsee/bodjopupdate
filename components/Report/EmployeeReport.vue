@@ -1,48 +1,47 @@
 <script lang="ts" setup>
 import dayjs from "#build/dayjs.imports.mjs";
 
-const report = useAttendanStore();
-const title = "ລາຍງານການເຂົ້າຮ່ວມງານ";
+const emStore = useEmployeeStore();
+const title = "ລາຍງານຂໍ້ມູນພະນັກງານ";
 
 const res = computed(() => {
-  return report.respons_data_attendan || [];
+  return emStore.respons_data_employee || [];
 });
 
-
+// ສະຖິຕິຂໍ້ມູນພະນັກງານ
 const statistics = computed(() => {
   if (!res.value.length) return null;
   
-  const totalRecords = res.value.length;
+  const totalEmployees = res.value.length;
   
- 
-  const lateRecords = res.value.filter(record => record.late === true).length;
-  const onTimeRecords = totalRecords - lateRecords;
+  // ນັບຈຳນວນຕາມເພດ
+  const maleCount = res.value.filter(emp => emp.gender === 'ຊາຍ' || emp.gender === 'Male' || emp.gender === 'male').length;
+  const femaleCount = res.value.filter(emp => emp.gender === 'ຍິງ' || emp.gender === 'Female' || emp.gender === 'female').length;
   
- 
-  const notCheckedOut = res.value.filter(record => !record.check_out_time).length;
-  const checkedOut = totalRecords - notCheckedOut;
+  // ນັບຈຳນວນຕາມອາຍຸ
+  const currentYear = dayjs().year();
+  const ageGroups = {
+    young: 0,    // 18-30
+    middle: 0,   // 31-45
+    senior: 0    // 46+
+  };
   
-  
-  const totalPenalty = res.value.reduce((sum, record) => {
-    return sum + parseFloat(record.penalty_amount || '0');
-  }, 0);
-  
-  
-  const uniqueEmployees = new Set(res.value.map(record => record.employee_id)).size;
+  res.value.forEach(emp => {
+    const age = currentYear - dayjs(emp.birthdate).year();
+    if (age <= 30) ageGroups.young++;
+    else if (age <= 45) ageGroups.middle++;
+    else ageGroups.senior++;
+  });
   
   return {
-    totalRecords,
-    lateRecords,
-    onTimeRecords,
-    notCheckedOut,
-    checkedOut,
-    totalPenalty,
-    uniqueEmployees,
-    latePercentage: totalRecords > 0 ? ((lateRecords / totalRecords) * 100).toFixed(1) : 0
+    totalEmployees,
+    maleCount,
+    femaleCount,
+    ageGroups
   };
 });
 
-
+// ຟັງຊັນຈັດການວັນທີ່
 const formatDate = (dateString: string | Date) => {
   return dayjs(dateString).format('DD/MM/YYYY');
 };
@@ -51,28 +50,17 @@ const formatLaoDate = (dateString: string | Date) => {
   return dayjs(dateString).format('DD ເດືອນ MM ປີ YYYY');
 };
 
-const formatTime = (timeString: string | null) => {
-  if (!timeString) return 'ຍັງບໍ່ໄດ້ອອກ';
-  return dayjs(timeString).format('HH:mm');
+// ຄຳນວນອາຍຸ
+const calculateAge = (birthdate: string | Date) => {
+  const age = dayjs().diff(dayjs(birthdate), 'year');
+  return age;
 };
 
-
-const getStatusInLao = (late: boolean, checkOut: string | null) => {
-  if (!checkOut) return 'ຍັງບໍ່ອອກ';
-  return late ? 'ມາສາຍ' : 'ມາຕົງເວລາ';
-};
-
+// ແປເພດເປັນລາວ
 const getGenderInLao = (gender: string) => {
   if (gender === 'Male' || gender === 'male' || gender === 'ຊາຍ') return 'ຊາຍ';
   if (gender === 'Female' || gender === 'female' || gender === 'ຍິງ') return 'ຍິງ';
   return gender;
-};
-
-
-const formatMoney = (amount: number) => {
-  return new Intl.NumberFormat('lo-LA', {
-    minimumFractionDigits: 0
-  }).format(amount) + ' ກີບ';
 };
 
 // ຟັງຊັນພິມ
@@ -96,25 +84,11 @@ const exportToPDF = () => {
 
 // ເລກທີ່ເອກະສານ
 const documentNumber = computed(() => {
-  return `${dayjs().format('YYYY')}/ATT/${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
-});
-
-// ການຈັດກຸ່ມຂໍ້ມູນຕາມວັນທີ່
-const groupedData = computed(() => {
-  if (!res.value.length) return {};
-  
-  return res.value.reduce((groups, record) => {
-    const date = dayjs(record.date).format('YYYY-MM-DD');
-    if (!groups[date]) {
-      groups[date] = [];
-    }
-    groups[date].push(record);
-    return groups;
-  }, {} as Record<string, typeof res.value>);
+  return `${dayjs().format('YYYY')}/HR/${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
 });
 
 onMounted(() => {
-  report.getData();
+  emStore.getDataEmployee();
 });
 </script>
 
@@ -122,7 +96,7 @@ onMounted(() => {
   <v-container>
     <div class="">
       
-     
+      <!-- ຫົວເອກະສານ -->
       <div class="">
         <div class="government-seal">
           <img src="../../assets/img/Logo.png" alt="" width="50">
@@ -156,12 +130,12 @@ onMounted(() => {
       <!-- ຫົວຂໍ້ເອກະສານ -->
       <div class="document-title">
         <h1>{{ title }}</h1>
-        <p class="subtitle">ການສະຫຼຸບຂໍ້ມູນການເຂົ້າ-ອອກງານ ແລະ ການລົງເວລາຂອງພະນັກງານ</p>
+        <p class="subtitle">ການສະຫຼຸບຂໍ້ມູນພະນັກງານທັງໝົດ</p>
       </div>
 
       <!-- ແນະນຳ -->
       <div class="introduction">
-        <p>ຕາມການສັ່ງການຂອງຫົວໜ້າພະແນກບໍລິຫານງານບຸກຄະລາກອນ, ໄດ້ທຳການລວບລວມ ແລະ ສັງລວມຂໍ້ມູນກ່ຽວກັບການເຂົ້າຮ່ວມງານ, ການລົງເວລາເຂົ້າ-ອອກ, ການມາສາຍ ແລະ ເງິນປັບຂອງພະນັກງານທັງໝົດ ສະເພາະການນຳສະເໜີ ແລະ ເພື່ອເປັນຂໍ້ມູນປະກອບການພິຈາລະນາ.</p>
+        <p>ຕາມການສັ່ງການຂອງຫົວໜ້າພະແນກບໍລິຫານງານບຸກຄະລາກອນ, ໄດ້ທຳການລວບລວມ ແລະ ສັງລວມຂໍ້ມູນກ່ຽວກັບພະນັກງານທັງໝົດ ພ້ອມທັງຂໍ້ມູນສ່ວນບຸກຄົນ, ຕຳແໜ່ງງານ ແລະ ຂໍ້ມູນການຕິດຕໍ່ ສະເພາະການນຳສະເໜີ ແລະ ເພື່ອເປັນຂໍ້ມູນປະກອບການພິຈາລະນາ.</p>
       </div>
 
       <!-- ສະຫຼຸບສະຖິຕິ -->
@@ -169,73 +143,61 @@ onMounted(() => {
         <h2>ສະຫຼຸບຂໍ້ມູນສະຖິຕິ</h2>
         <div class="summary-grid" v-if="statistics">
           <div class="summary-item">
-            <span class="label">ຈຳນວນບັນທຶກທັງໝົດ:</span>
-            <span class="value">{{ statistics.totalRecords }} ຄັ້ງ</span>
+            <span class="label">ຈຳນວນພະນັກງານທັງໝົດ:</span>
+            <span class="value">{{ statistics.totalEmployees }} ຄົນ</span>
           </div>
           <div class="summary-item">
-            <span class="label">ຈຳນວນພະນັກງານ:</span>
-            <span class="value">{{ statistics.uniqueEmployees }} ຄົນ</span>
+            <span class="label">ພະນັກງານເພດຊາຍ:</span>
+            <span class="value">{{ statistics.maleCount }} ຄົນ</span>
           </div>
           <div class="summary-item">
-            <span class="label">ມາຕົງເວລາ:</span>
-            <span class="value">{{ statistics.onTimeRecords }} ຄັ້ງ</span>
+            <span class="label">ພະນັກງານເພດຍິງ:</span>
+            <span class="value">{{ statistics.femaleCount }} ຄົນ</span>
           </div>
           <div class="summary-item">
-            <span class="label">ມາສາຍ:</span>
-            <span class="value">{{ statistics.lateRecords }} ຄັ້ງ</span>
+            <span class="label">ອາຍຸ 18-30 ປີ:</span>
+            <span class="value">{{ statistics.ageGroups.young }} ຄົນ</span>
           </div>
           <div class="summary-item">
-            <span class="label">ອັດຕາການມາສາຍ:</span>
-            <span class="value">{{ statistics.latePercentage }}%</span>
+            <span class="label">ອາຍຸ 31-45 ປີ:</span>
+            <span class="value">{{ statistics.ageGroups.middle }} ຄົນ</span>
           </div>
           <div class="summary-item">
-            <span class="label">ເງິນປັບລວມ:</span>
-            <span class="value">{{ formatMoney(statistics.totalPenalty) }}</span>
-          </div>
-          <div class="summary-item">
-            <span class="label">ໄດ້ອອກແລ້ວ:</span>
-            <span class="value">{{ statistics.checkedOut }} ຄັ້ງ</span>
-          </div>
-          <div class="summary-item">
-            <span class="label">ຍັງບໍ່ອອກ:</span>
-            <span class="value">{{ statistics.notCheckedOut }} ຄັ້ງ</span>
+            <span class="label">ອາຍຸ 46+ ປີ:</span>
+            <span class="value">{{ statistics.ageGroups.senior }} ຄົນ</span>
           </div>
         </div>
       </div>
 
       <!-- ຂໍ້ມູນລາຍລະອຽດ -->
       <div class="data-section">
-        <h2>ລາຍລະອຽດການເຂົ້າຮ່ວມງານ</h2>
+        <h2>ລາຍລະອຽດຂໍ້ມູນພະນັກງານ</h2>
         
         <table class="official-table">
           <thead>
             <tr>
               <th class="col-no">ລຳດັບ</th>
-              <th class="col-date">ວັນທີ່</th>
-              <th class="col-emp-id">ID ພນງ</th>
-              <th class="col-name">ຊື່ພະນັກງານ</th>
+              <th class="col-id">ID</th>
+              <th class="col-name">ຊື່ ແລະ ນາມສະກຸນ</th>
               <th class="col-gender">ເພດ</th>
-              <th class="col-checkin">ເວລາເຂົ້າ</th>
-              <th class="col-checkout">ເວລາອອກ</th>
-              <th class="col-status">ສະຖານະ</th>
-              <th class="col-penalty">ເງິນປັບ</th>
+              <th class="col-age">ອາຍຸ</th>
+              <th class="col-address">ທີ່ຢູ່</th>
+              <th class="col-phone">ເບີໂທ</th>
+              <th class="col-position">ຕຳແໜ່ງ ID</th>
+              <th class="col-date">ວັນທີ່ເຂົ້າເຮັດວຽກ</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(record, index) in res" :key="record.attendance_id">
+            <tr v-for="(employee, index) in res" :key="employee.employee_id">
               <td class="text-center">{{ index + 1 }}</td>
-              <td class="date-cell">{{ formatDate(record.date) }}</td>
-              <td class="text-center">{{ record.employee_id }}</td>
-              <td class="name-cell">{{ record.employee.name }}</td>
-              <td class="text-center">{{ getGenderInLao(record.employee.gender) }}</td>
-              <td class="time-cell">{{ formatTime(record.check_in_time) }}</td>
-              <td class="time-cell">{{ formatTime(record.check_out_time) }}</td>
-              <td class="status-cell" :class="{ 'late-status': record.late, 'ontime-status': !record.late }">
-                {{ getStatusInLao(record.late, record.check_out_time) }}
-              </td>
-              <td class="penalty-cell">
-                {{ record.penalty_amount ? formatMoney(parseFloat(record.penalty_amount)) : '-' }}
-              </td>
+              <td class="text-center">{{ employee.employee_id }}</td>
+              <td class="name-cell">{{ employee.name }}</td>
+              <td class="text-center">{{ getGenderInLao(employee.gender) }}</td>
+              <td class="text-center">{{ calculateAge(employee.birthdate) }}</td>
+              <td class="address-cell">{{ employee.address }}</td>
+              <td class="phone-cell">{{ employee.phone }}</td>
+              <td class="text-center">{{ employee.position_id }}</td>
+              <td class="date-cell">{{ formatDate(employee.createdAt) }}</td>
             </tr>
           </tbody>
         </table>
@@ -243,7 +205,7 @@ onMounted(() => {
 
       <!-- ບົດສະຫຼຸບ -->
       <div class="conclusion">
-        <p>ຂໍ້ມູນດັ່ງກ່າວຂ້າງເທິງນີ້ ໄດ້ຖືກລວບລວມ ແລະ ກວດສອບຄວາມຖືກຕ້ອງແລ້ວ ເຊິ່ງສາມາດນຳໃຊ້ເປັນຂໍ້ມູນອ້າງອີງ ສຳລັບການຕິດຕາມ, ປະເມີນ ແລະ ພັດທະນາວິໄນການເຮັດວຽກຂອງພະນັກງານຕໍ່ໄປ.</p>
+        <p>ຂໍ້ມູນດັ່ງກ່າວຂ້າງເທິງນີ້ ໄດ້ຖືກລວບລວມ ແລະ ກວດສອບຄວາມຖືກຕ້ອງແລ້ວ ເຊິ່ງສາມາດນຳໃຊ້ເປັນຂໍ້ມູນອ້າງອີງ ສຳລັບການວາງແຜນ ແລະ ການພັດທະນາລະບົບການບໍລິຫານງານບຸກຄະລາກອນຕໍ່ໄປ.</p>
       </div>
 
       <!-- ລາຍເຊັນ -->
@@ -282,7 +244,7 @@ onMounted(() => {
         </div>
         <div class="document-footer">
           <p>ເອກະສານນີ້ຖືກສ້າງໂດຍລະບົບຄອມພິວເຕີ ວັນທີ່ {{ formatDate(new Date()) }} {{ dayjs().format('HH:mm') }}</p>
-          <p>ສຳນັກງານບໍລິຫານງານບຸກຄະລາກອນ - ລະບົບຕິດຕາມການເຂົ້າຮ່ວມງານ</p>
+          <p>ສຳນັກງານບໍລິຫານງານບຸກຄະລາກອນ - ກະຊວງແຮງງານ ແລະ ສະຫວັດດີການສັງຄົມ</p>
         </div>
       </div>
     </div>
@@ -436,7 +398,7 @@ onMounted(() => {
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 6px;
   margin-bottom: 10px;
 }
@@ -447,7 +409,7 @@ onMounted(() => {
   padding: 4px 8px;
   background: #f9f9f9;
   border-left: 2px solid #8B4513;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .summary-item .label {
@@ -507,7 +469,16 @@ onMounted(() => {
 .name-cell {
   font-weight: 500;
   text-align: left;
-  font-size: 9px;
+}
+
+.address-cell {
+  font-size: 8px;
+  text-align: left;
+}
+
+.phone-cell {
+  text-align: center;
+  font-size: 8px;
 }
 
 .date-cell {
@@ -515,45 +486,16 @@ onMounted(() => {
   font-size: 8px;
 }
 
-.time-cell {
-  text-align: center;
-  font-size: 8px;
-  font-weight: 500;
-}
-
-.status-cell {
-  text-align: center;
-  font-size: 8px;
-  font-weight: bold;
-}
-
-.late-status {
-  color: #d32f2f;
-  background-color: #ffebee;
-}
-
-.ontime-status {
-  color: #388e3c;
-  background-color: #e8f5e8;
-}
-
-.penalty-cell {
-  text-align: right;
-  font-size: 8px;
-  font-weight: 500;
-  color: #d32f2f;
-}
-
 /* ຄວາມກວ້າງຄໍລັມ */
 .col-no { width: 6%; }
-.col-date { width: 10%; }
-.col-emp-id { width: 8%; }
-.col-name { width: 18%; }
+.col-id { width: 7%; }
+.col-name { width: 20%; }
 .col-gender { width: 8%; }
-.col-checkin { width: 10%; }
-.col-checkout { width: 10%; }
-.col-status { width: 12%; }
-.col-penalty { width: 12%; }
+.col-age { width: 8%; }
+.col-address { width: 25%; }
+.col-phone { width: 12%; }
+.col-position { width: 9%; }
+.col-date { width: 12%; }
 
 /* ບົດສະຫຼຸບ */
 .conclusion {

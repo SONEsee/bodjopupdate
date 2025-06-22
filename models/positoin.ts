@@ -2,12 +2,17 @@ export interface Positoin{
     items: PositoinRespons[];
 }
 export interface PositoinRespons {
-    position_id:   number;
+        position_id:   number;
     position_name: string;
-    base_sal_id:   string;
     rate_ot:       string;
+    base_sal_id:   number;
     createdAt:     Date;
     updatedAt:     Date;
+    baseSalary:    BaseSalary;
+}
+export interface BaseSalary {
+    base_sal_id: number;
+    salary:      string;
 }
 export interface NgernduenRespons {
     status: string;

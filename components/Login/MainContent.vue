@@ -1,6 +1,5 @@
 <template>
   <section class="login-container">
- 
     <div class="background-overlay">
       <div class="floating-shape shape-1"></div>
       <div class="floating-shape shape-2"></div>
@@ -12,27 +11,22 @@
       <v-row justify="center" align="center" class="fill-height">
         <v-col cols="12" sm="8" md="6" lg="4" xl="3">
           <v-form ref="form" @submit.prevent="handleLogin">
-            <v-card 
-              class="login-card pa-8"
-              elevation="24"
-              rounded="xl"
-            >
+            <v-card class="login-card pa-8" elevation="24" rounded="xl">
               <!-- Logo Section -->
               <div class="text-center mb-8">
                 <div class="logo-container">
-                  <v-avatar 
-                    size="120" 
-                    class="logo-avatar elevation-8"
-                  >
-                    <img src="../../assets/img/Logo.png" alt="Logo" width="120">
+                  <v-avatar size="120" class="logo-avatar elevation-8">
+                    <img
+                      src="../../assets/img/Logo.png"
+                      alt="Logo"
+                      width="120"
+                    />
                   </v-avatar>
                 </div>
                 <h2 class="company-title mt-6">
                   ບໍລິສັດ ວີວີທີເອັສ ໂຊກໄຊຈະເລີນ
                 </h2>
-                <p class="subtitle-text">
-                  ກໍ່ສ້າງ ຈຳກັດຜູ້ດຽວ
-                </p>
+                <p class="subtitle-text">ກໍ່ສ້າງ ຈຳກັດຜູ້ດຽວ</p>
                 <div class="title-underline"></div>
               </div>
 
@@ -131,12 +125,12 @@ const goPath = (path: string) => {
 
 const DefaultSwalError = (error: any) => {
   Swal.fire({
-    icon: 'error',
-    title: 'ຂໍ້ຜິດພາດ',
-    text: error.message || 'ມີບາງຢ່າງຜິດພາດ!',
-    confirmButtonColor: '#6495ED',
-    background: '#ffffff',
-    color: '#333333'
+    icon: "error",
+    title: "ຂໍ້ຜິດພາດ",
+    text: error.message || "ມີບາງຢ່າງຜິດພາດ!",
+    confirmButtonColor: "#6495ED",
+    background: "#ffffff",
+    color: "#333333",
   });
 };
 
@@ -145,43 +139,46 @@ const handleLogin = async () => {
     const { valid } = await form.value.validate();
     if (valid) {
       loading.value = true;
-      
+
       const res = await axios.post("/api/auth/login", {
         username: username.value,
         password: password.value,
       });
 
       const { success, message, data } = res.data;
-      
+
       if (success && data && data.token && data.user) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
-
+        localStorage.setItem(
+          "employee_id",
+          JSON.stringify(data.user.employee_id)
+        );
         Swal.fire({
-          icon: 'success',
-          title: 'ສຳເລັດ!',
-          text: message || 'ເຂົ້າສູ່ລະບົບສຳເລັດແລ້ວ',
+          icon: "success",
+          title: "ສຳເລັດ!",
+          text: message || "ເຂົ້າສູ່ລະບົບສຳເລັດແລ້ວ",
           timer: 1500,
           showConfirmButton: false,
-          confirmButtonColor: '#6495ED',
-          background: '#ffffff',
-          color: '#333333'
+          confirmButtonColor: "#6495ED",
+          background: "#ffffff",
+          color: "#333333",
         });
 
         let timerInterval: ReturnType<typeof setInterval>;
         Swal.fire({
-          title: 'ກຳລັງເຂົ້າສູ່ລະບົບ',
-          html: 'ຈະເຂົ້າສູ່ໜ້າຫຼັກໃນ <b></b> ວິນາທີ.',
+          title: "ກຳລັງເຂົ້າສູ່ລະບົບ",
+          html: "ຈະເຂົ້າສູ່ໜ້າຫຼັກໃນ <b></b> ວິນາທີ.",
           timer: 3000,
           timerProgressBar: true,
-          confirmButtonColor: '#6495ED',
-          background: '#ffffff',
-          color: '#333333',
+          confirmButtonColor: "#6495ED",
+          background: "#ffffff",
+          color: "#333333",
           didOpen: () => {
             Swal.showLoading();
             const htmlContainer = Swal.getHtmlContainer();
             if (htmlContainer) {
-              const b = htmlContainer.querySelector('b');
+              const b = htmlContainer.querySelector("b");
               if (b) {
                 timerInterval = setInterval(() => {
                   const timerLeft = Swal.getTimerLeft();
@@ -195,7 +192,7 @@ const handleLogin = async () => {
           willClose: () => {
             clearInterval(timerInterval);
             goPath("/");
-          }
+          },
         });
       } else {
         throw new Error("ຂໍ້ມູນຕອບກັບບໍ່ຖືກຕ້ອງ");
@@ -203,25 +200,26 @@ const handleLogin = async () => {
     }
   } catch (error: any) {
     console.error("Login error:", error);
-    
+
     let errorMessage = "ມີຂໍ້ຜິດພາດໃນການເຂົ້າສູ່ລະບົບ";
-    
+
     if (error.response) {
       console.log("Response error data:", error.response.data);
-      errorMessage = error.response.data.message || `ຂໍ້ຜິດພາດ: ${error.response.status}`;
+      errorMessage =
+        error.response.data.message || `ຂໍ້ຜິດພາດ: ${error.response.status}`;
     } else if (error.message) {
       errorMessage = error.message;
     }
-    
+
     Swal.fire({
-      icon: 'error',
-      title: 'ຂໍ້ຜິດພາດ',
+      icon: "error",
+      title: "ຂໍ້ຜິດພາດ",
       text: errorMessage,
-      confirmButtonColor: '#6495ED',
-      background: '#ffffff',
-      color: '#333333'
+      confirmButtonColor: "#6495ED",
+      background: "#ffffff",
+      color: "#333333",
     });
-    
+
     loading.value = false;
   }
 };
@@ -231,7 +229,7 @@ const handleLogin = async () => {
 .login-container {
   min-height: 100vh;
   position: relative;
-  background: linear-gradient(135deg, #6495ED 0%, #87CEEB 50%, #E6F3FF 100%);
+  background: linear-gradient(135deg, #6495ed 0%, #87ceeb 50%, #e6f3ff 100%);
   overflow: hidden;
 }
 
@@ -285,7 +283,8 @@ const handleLogin = async () => {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px) rotate(0deg);
   }
   50% {
@@ -316,7 +315,7 @@ const handleLogin = async () => {
 }
 
 .logo-avatar {
-  background: linear-gradient(135deg, #6495ED, #87CEEB);
+  background: linear-gradient(135deg, #6495ed, #87ceeb);
   border: 4px solid rgba(255, 255, 255, 0.8);
   transition: all 0.3s ease;
 }
@@ -327,7 +326,7 @@ const handleLogin = async () => {
 }
 
 .company-title {
-  color: #2C3E50;
+  color: #2c3e50;
   font-weight: 700;
   font-size: 1.4rem;
   margin-bottom: 8px;
@@ -335,7 +334,7 @@ const handleLogin = async () => {
 }
 
 .subtitle-text {
-  color: #6495ED;
+  color: #6495ed;
   font-weight: 500;
   font-size: 1rem;
   margin-bottom: 16px;
@@ -344,7 +343,7 @@ const handleLogin = async () => {
 .title-underline {
   width: 60px;
   height: 3px;
-  background: linear-gradient(90deg, #6495ED, #87CEEB);
+  background: linear-gradient(90deg, #6495ed, #87ceeb);
   margin: 0 auto;
   border-radius: 2px;
 }
@@ -360,7 +359,7 @@ const handleLogin = async () => {
 .field-label {
   display: flex;
   align-items: center;
-  color: #2C3E50;
+  color: #2c3e50;
   font-weight: 600;
   margin-bottom: 8px;
   font-size: 0.95rem;
@@ -376,11 +375,11 @@ const handleLogin = async () => {
 }
 
 .custom-input :deep(.v-field__outline) {
-  --v-field-border-color: #E0E7FF;
+  --v-field-border-color: #e0e7ff;
 }
 
 .custom-input :deep(.v-field--focused .v-field__outline) {
-  --v-field-border-color: #6495ED;
+  --v-field-border-color: #6495ed;
   border-width: 2px;
 }
 
@@ -390,7 +389,7 @@ const handleLogin = async () => {
 }
 
 .login-btn {
-  background: linear-gradient(135deg, #6495ED 0%, #4169E1 100%) !important;
+  background: linear-gradient(135deg, #6495ed 0%, #4169e1 100%) !important;
   color: white !important;
   font-weight: 700;
   font-size: 1.1rem;
@@ -404,7 +403,7 @@ const handleLogin = async () => {
 .login-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(100, 149, 237, 0.4) !important;
-  background: linear-gradient(135deg, #4169E1 0%, #6495ED 100%) !important;
+  background: linear-gradient(135deg, #4169e1 0%, #6495ed 100%) !important;
 }
 
 .login-btn:active {
@@ -417,7 +416,7 @@ const handleLogin = async () => {
 
 .version-chip {
   background: rgba(100, 149, 237, 0.1) !important;
-  color: #6495ED !important;
+  color: #6495ed !important;
   font-weight: 500;
 }
 
@@ -427,15 +426,15 @@ const handleLogin = async () => {
     margin: 16px;
     padding: 24px !important;
   }
-  
+
   .company-title {
     font-size: 1.2rem;
   }
-  
+
   .subtitle-text {
     font-size: 0.9rem;
   }
-  
+
   .floating-shape {
     display: none;
   }
@@ -447,13 +446,13 @@ const handleLogin = async () => {
     background: rgba(30, 41, 59, 0.95);
     color: white;
   }
-  
+
   .company-title {
     color: white;
   }
-  
+
   .field-label {
-    color: #E2E8F0;
+    color: #e2e8f0;
   }
 }
 </style>

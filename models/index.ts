@@ -23,7 +23,7 @@ import * as AttendanModel from "./identities";
 import * as OTModel from "./ot";
 import * as BasalaryModel from "./basalary";
 import * as DashBoardAdminModel from "./dasboarht";
-
+import * as AttednancesModel from "./attenden";
 
 export {
   UserModel,
@@ -50,5 +50,6 @@ export {
   OTModel,
   BasalaryModel,
   DashBoardAdminModel,
+  AttednancesModel,
 
 };

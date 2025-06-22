@@ -2,33 +2,53 @@
 import dayjs from "#build/dayjs.imports.mjs";
 
 const report = useAttendanStore();
-const title = "ລາຍງານການເຂົ້າຮ່ວມງານ";
+const title = "ລາຍງານການເຂົ້າຮ່ວມງານສ່ວນບຸກຄົນ";
 
 const res = computed(() => {
   return report.respons_data_attendan || [];
 });
 
+// ຂໍ້ມູນພະນັກງານ (ເອົາຈາກລາຍການທຳອິດ)
+const employeeInfo = computed(() => {
+  if (!res.value.length) return null;
+  return res.value[0].employee;
+});
 
-const statistics = computed(() => {
+// ສະຖິຕິການເຂົ້າຮ່ວມງານສ່ວນບຸກຄົນ
+const personalStatistics = computed(() => {
   if (!res.value.length) return null;
   
   const totalRecords = res.value.length;
   
- 
+  // ນັບຈຳນວນການມາທີ່ໄປສາຍ
   const lateRecords = res.value.filter(record => record.late === true).length;
   const onTimeRecords = totalRecords - lateRecords;
   
- 
+  // ນັບຈຳນວນຄົນທີ່ຍັງບໍ່ທັນ check out
   const notCheckedOut = res.value.filter(record => !record.check_out_time).length;
   const checkedOut = totalRecords - notCheckedOut;
   
-  
+  // ຄຳນວນເງິນປັບລວມ
   const totalPenalty = res.value.reduce((sum, record) => {
     return sum + parseFloat(record.penalty_amount || '0');
   }, 0);
   
+  // ຄຳນວນຊ່ວງວັນທີ່
+  const dates = res.value.map(record => dayjs(record.date));
+  const firstDate = dates.reduce((min, current) => current.isBefore(min) ? current : min, dates[0]);
+  const lastDate = dates.reduce((max, current) => current.isAfter(max) ? current : max, dates[0]);
+  const daysCovered = lastDate.diff(firstDate, 'day') + 1;
   
-  const uniqueEmployees = new Set(res.value.map(record => record.employee_id)).size;
+  // ຄຳນວນຊົ່ວໂມງເຮັດວຽກລວມ
+  const totalWorkingHours = res.value.reduce((sum, record) => {
+    if (record.check_out_time && record.check_in_time) {
+      const checkIn = dayjs(`${record.date} ${record.check_in_time}`);
+      const checkOut = dayjs(`${record.date} ${record.check_out_time}`);
+      const hours = checkOut.diff(checkIn, 'hour', true);
+      return sum + hours;
+    }
+    return sum;
+  }, 0);
   
   return {
     totalRecords,
@@ -37,9 +57,28 @@ const statistics = computed(() => {
     notCheckedOut,
     checkedOut,
     totalPenalty,
-    uniqueEmployees,
-    latePercentage: totalRecords > 0 ? ((lateRecords / totalRecords) * 100).toFixed(1) : 0
+    latePercentage: totalRecords > 0 ? ((lateRecords / totalRecords) * 100).toFixed(1) : 0,
+    onTimePercentage: totalRecords > 0 ? ((onTimeRecords / totalRecords) * 100).toFixed(1) : 0,
+    daysCovered,
+    totalWorkingHours: totalWorkingHours.toFixed(1),
+    avgHoursPerDay: daysCovered > 0 ? (totalWorkingHours / daysCovered).toFixed(1) : 0,
+    firstDate: firstDate.format('DD/MM/YYYY'),
+    lastDate: lastDate.format('DD/MM/YYYY')
   };
+});
+
+// ຈັດກຸ່ມຂໍ້ມູນຕາມວັນທີ່
+const groupedByDate = computed(() => {
+  if (!res.value.length) return {};
+  
+  return res.value.reduce((groups, record) => {
+    const date = dayjs(record.date).format('YYYY-MM-DD');
+    if (!groups[date]) {
+      groups[date] = [];
+    }
+    groups[date].push(record);
+    return groups;
+  }, {} as Record<string, typeof res.value>);
 });
 
 
@@ -53,7 +92,25 @@ const formatLaoDate = (dateString: string | Date) => {
 
 const formatTime = (timeString: string | null) => {
   if (!timeString) return 'ຍັງບໍ່ໄດ້ອອກ';
-  return dayjs(timeString).format('HH:mm');
+  return timeString;
+};
+
+const formatDateTime = (dateString: string, timeString: string) => {
+  return dayjs(`${dateString} ${timeString}`).format('DD/MM/YYYY HH:mm');
+};
+
+
+const calculateWorkingHours = (checkIn: string, checkOut: string | null, date: string) => {
+  if (!checkOut) return 'ຍັງບໍ່ອອກ';
+  
+  const start = dayjs(`${date} ${checkIn}`);
+  const end = dayjs(`${date} ${checkOut}`);
+  const duration = end.diff(start, 'minute');
+  
+  const hours = Math.floor(duration / 60);
+  const minutes = duration % 60;
+  
+  return `${hours}:${minutes.toString().padStart(2, '0')} ຊົ່ວໂມງ`;
 };
 
 
@@ -69,13 +126,18 @@ const getGenderInLao = (gender: string) => {
 };
 
 
+const calculateAge = (birthdate: string | Date) => {
+  return dayjs().diff(dayjs(birthdate), 'year');
+};
+
+
 const formatMoney = (amount: number) => {
   return new Intl.NumberFormat('lo-LA', {
     minimumFractionDigits: 0
   }).format(amount) + ' ກີບ';
 };
 
-// ຟັງຊັນພິມ
+
 const exportToPDF = () => {
   const sidebar = document.querySelector('.sidebar');
   const nav = document.querySelector('.navigation');
@@ -94,27 +156,13 @@ const exportToPDF = () => {
   }, 1000);
 };
 
-// ເລກທີ່ເອກະສານ
-const documentNumber = computed(() => {
-  return `${dayjs().format('YYYY')}/ATT/${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
-});
 
-// ການຈັດກຸ່ມຂໍ້ມູນຕາມວັນທີ່
-const groupedData = computed(() => {
-  if (!res.value.length) return {};
-  
-  return res.value.reduce((groups, record) => {
-    const date = dayjs(record.date).format('YYYY-MM-DD');
-    if (!groups[date]) {
-      groups[date] = [];
-    }
-    groups[date].push(record);
-    return groups;
-  }, {} as Record<string, typeof res.value>);
+const documentNumber = computed(() => {
+  return `${dayjs().format('YYYY')}/PA/${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
 });
 
 onMounted(() => {
-  report.getData();
+  report.getDatamy();
 });
 </script>
 
@@ -156,85 +204,132 @@ onMounted(() => {
       <!-- ຫົວຂໍ້ເອກະສານ -->
       <div class="document-title">
         <h1>{{ title }}</h1>
-        <p class="subtitle">ການສະຫຼຸບຂໍ້ມູນການເຂົ້າ-ອອກງານ ແລະ ການລົງເວລາຂອງພະນັກງານ</p>
+        <p class="subtitle">ລາຍລະອຽດການເຂົ້າ-ອອກງານ ແລະ ການປະຕິບັດງານ</p>
       </div>
 
       <!-- ແນະນຳ -->
       <div class="introduction">
-        <p>ຕາມການສັ່ງການຂອງຫົວໜ້າພະແນກບໍລິຫານງານບຸກຄະລາກອນ, ໄດ້ທຳການລວບລວມ ແລະ ສັງລວມຂໍ້ມູນກ່ຽວກັບການເຂົ້າຮ່ວມງານ, ການລົງເວລາເຂົ້າ-ອອກ, ການມາສາຍ ແລະ ເງິນປັບຂອງພະນັກງານທັງໝົດ ສະເພາະການນຳສະເໜີ ແລະ ເພື່ອເປັນຂໍ້ມູນປະກອບການພິຈາລະນາ.</p>
+        <p>ຕາມການຮ້ອງຂໍຂອງພະນັກງານ ແລະ ການສັ່ງການຂອງຫົວໜ້າພະແນກບໍລິຫານງານບຸກຄະລາກອນ, ໄດ້ທຳການລວບລວມ ແລະ ສັງລວມຂໍ້ມູນການເຂົ້າຮ່ວມງານສ່ວນບຸກຄົນ ພ້ອມທັງການວິເຄາະຜົນການປະຕິບັດງານ ສະເພາະການນຳສະເໜີ ແລະ ເພື່ອເປັນຂໍ້ມູນປະກອບການພິຈາລະນາ.</p>
+      </div>
+
+      <!-- ຂໍ້ມູນພະນັກງານ -->
+      <div class="employee-info-section" v-if="employeeInfo">
+        <h2>ຂໍ້ມູນພື້ນຖານພະນັກງານ</h2>
+        <div class="employee-details">
+          <div class="employee-grid">
+            <div class="info-item">
+              <span class="label">ລະຫັດພະນັກງານ:</span>
+              <span class="value">{{ employeeInfo.employee_id }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">ຊື່ ແລະ ນາມສະກຸນ:</span>
+              <span class="value">{{ employeeInfo.name }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">ເພດ:</span>
+              <span class="value">{{ getGenderInLao(employeeInfo.gender) }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">ອາຍຸ:</span>
+              <span class="value">{{ calculateAge(employeeInfo.birthdate) }} ປີ</span>
+            </div>
+            <div class="info-item">
+              <span class="label">ທີ່ຢູ່:</span>
+              <span class="value">{{ employeeInfo.address }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">ເບີໂທ:</span>
+              <span class="value">{{ employeeInfo.phone }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">ຕຳແໜ່ງ ID:</span>
+              <span class="value">{{ employeeInfo.position_id }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">ກຳນົດການ ID:</span>
+              <span class="value">{{ employeeInfo.schedule_id }}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ສະຫຼຸບສະຖິຕິ -->
       <div class="summary-section">
-        <h2>ສະຫຼຸບຂໍ້ມູນສະຖິຕິ</h2>
-        <div class="summary-grid" v-if="statistics">
+        <h2>ສະຫຼຸບຜົນການປະຕິບັດງານ</h2>
+        <div class="summary-grid" v-if="personalStatistics">
           <div class="summary-item">
-            <span class="label">ຈຳນວນບັນທຶກທັງໝົດ:</span>
-            <span class="value">{{ statistics.totalRecords }} ຄັ້ງ</span>
+            <span class="label">ໄລຍະເວລາ:</span>
+            <span class="value">{{ personalStatistics.firstDate }} - {{ personalStatistics.lastDate }}</span>
           </div>
           <div class="summary-item">
-            <span class="label">ຈຳນວນພະນັກງານ:</span>
-            <span class="value">{{ statistics.uniqueEmployees }} ຄົນ</span>
+            <span class="label">ຈຳນວນມື້ທີ່ເຮັດວຽກ:</span>
+            <span class="value">{{ personalStatistics.totalRecords }} ມື້</span>
           </div>
           <div class="summary-item">
             <span class="label">ມາຕົງເວລາ:</span>
-            <span class="value">{{ statistics.onTimeRecords }} ຄັ້ງ</span>
+            <span class="value">{{ personalStatistics.onTimeRecords }} ຄັ້ງ ({{ personalStatistics.onTimePercentage }}%)</span>
           </div>
           <div class="summary-item">
             <span class="label">ມາສາຍ:</span>
-            <span class="value">{{ statistics.lateRecords }} ຄັ້ງ</span>
+            <span class="value">{{ personalStatistics.lateRecords }} ຄັ້ງ ({{ personalStatistics.latePercentage }}%)</span>
           </div>
           <div class="summary-item">
-            <span class="label">ອັດຕາການມາສາຍ:</span>
-            <span class="value">{{ statistics.latePercentage }}%</span>
+            <span class="label">ຊົ່ວໂມງເຮັດວຽກລວມ:</span>
+            <span class="value">{{ personalStatistics.totalWorkingHours }} ຊົ່ວໂມງ</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">ຄ່າສະເລ່ຍຕໍ່ມື້:</span>
+            <span class="value">{{ personalStatistics.avgHoursPerDay }} ຊົ່ວໂມງ/ມື້</span>
           </div>
           <div class="summary-item">
             <span class="label">ເງິນປັບລວມ:</span>
-            <span class="value">{{ formatMoney(statistics.totalPenalty) }}</span>
+            <span class="value penalty-highlight">{{ formatMoney(personalStatistics.totalPenalty) }}</span>
           </div>
           <div class="summary-item">
-            <span class="label">ໄດ້ອອກແລ້ວ:</span>
-            <span class="value">{{ statistics.checkedOut }} ຄັ້ງ</span>
-          </div>
-          <div class="summary-item">
-            <span class="label">ຍັງບໍ່ອອກ:</span>
-            <span class="value">{{ statistics.notCheckedOut }} ຄັ້ງ</span>
+            <span class="label">ຍັງບໍ່ check-out:</span>
+            <span class="value">{{ personalStatistics.notCheckedOut }} ຄັ້ງ</span>
           </div>
         </div>
       </div>
 
       <!-- ຂໍ້ມູນລາຍລະອຽດ -->
       <div class="data-section">
-        <h2>ລາຍລະອຽດການເຂົ້າຮ່ວມງານ</h2>
+        <h2>ລາຍລະອຽດການເຂົ້າ-ອອກງານ</h2>
         
         <table class="official-table">
           <thead>
             <tr>
               <th class="col-no">ລຳດັບ</th>
               <th class="col-date">ວັນທີ່</th>
-              <th class="col-emp-id">ID ພນງ</th>
-              <th class="col-name">ຊື່ພະນັກງານ</th>
-              <th class="col-gender">ເພດ</th>
               <th class="col-checkin">ເວລາເຂົ້າ</th>
               <th class="col-checkout">ເວລາອອກ</th>
+              <th class="col-hours">ຊົ່ວໂມງເຮັດວຽກ</th>
               <th class="col-status">ສະຖານະ</th>
               <th class="col-penalty">ເງິນປັບ</th>
+              <th class="col-note">ໝາຍເຫດ</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(record, index) in res" :key="record.attendance_id">
               <td class="text-center">{{ index + 1 }}</td>
               <td class="date-cell">{{ formatDate(record.date) }}</td>
-              <td class="text-center">{{ record.employee_id }}</td>
-              <td class="name-cell">{{ record.employee.name }}</td>
-              <td class="text-center">{{ getGenderInLao(record.employee.gender) }}</td>
               <td class="time-cell">{{ formatTime(record.check_in_time) }}</td>
               <td class="time-cell">{{ formatTime(record.check_out_time) }}</td>
-              <td class="status-cell" :class="{ 'late-status': record.late, 'ontime-status': !record.late }">
+              <td class="hours-cell">{{ calculateWorkingHours(record.check_in_time, record.check_out_time, record.date) }}</td>
+              <td class="status-cell" :class="{ 
+                'late-status': record.late, 
+                'ontime-status': !record.late && record.check_out_time,
+                'pending-status': !record.check_out_time 
+              }">
                 {{ getStatusInLao(record.late, record.check_out_time) }}
               </td>
               <td class="penalty-cell">
                 {{ record.penalty_amount ? formatMoney(parseFloat(record.penalty_amount)) : '-' }}
+              </td>
+              <td class="note-cell">
+                <span v-if="!record.check_out_time" class="warning-note">ຍັງບໍ່ໄດ້ອອກ</span>
+                <span v-else-if="record.late" class="late-note">ມາສາຍ</span>
+                <span v-else class="normal-note">ປົກກະຕິ</span>
               </td>
             </tr>
           </tbody>
@@ -243,7 +338,7 @@ onMounted(() => {
 
       <!-- ບົດສະຫຼຸບ -->
       <div class="conclusion">
-        <p>ຂໍ້ມູນດັ່ງກ່າວຂ້າງເທິງນີ້ ໄດ້ຖືກລວບລວມ ແລະ ກວດສອບຄວາມຖືກຕ້ອງແລ້ວ ເຊິ່ງສາມາດນຳໃຊ້ເປັນຂໍ້ມູນອ້າງອີງ ສຳລັບການຕິດຕາມ, ປະເມີນ ແລະ ພັດທະນາວິໄນການເຮັດວຽກຂອງພະນັກງານຕໍ່ໄປ.</p>
+        <p>ຈາກຂໍ້ມູນດັ່ງກ່າວຂ້າງເທິງນີ້, ສາມາດສະຫຼຸບໄດ້ວ່າພະນັກງານມີການປະຕິບັດງານ{{ personalStatistics?.onTimePercentage >= 80 ? 'ດີ' : 'ຍັງຕ້ອງປັບປຸງ' }}. ຂໍ້ມູນນີ້ໄດ້ຖືກລວບລວມ ແລະ ກວດສອບຄວາມຖືກຕ້ອງແລ້ວ ເຊິ່ງສາມາດນຳໃຊ້ເປັນຂໍ້ມູນອ້າງອີງ ສຳລັບການປະເມີນຜົນການເຮັດວຽກ ແລະ ການພັດທະນາຕົນເອງຕໍ່ໄປ.</p>
       </div>
 
       <!-- ລາຍເຊັນ -->
@@ -254,16 +349,16 @@ onMounted(() => {
               <p><strong>ຜູ້ກຽມລາຍງານ</strong></p>
               <div class="signature-space"></div>
               <p>ຊື່ ແລະ ນາມສະກຸນ: ................................</p>
-              <p>ຕຳແໜ່ງ: ........................................</p>
+              <p>ຕຳແໜ່ງ: ນັກວິເຄາະຂໍ້ມູນ</p>
               <p>ວັນທີ່: {{ formatDate(new Date()) }}</p>
             </div>
           </v-col>
           <v-col cols="6">
             <div class="signature-right">
-              <p><strong>ຜູ້ອະນຸມັດ</strong></p>
+              <p><strong>ພະນັກງານຮັບຮອງ</strong></p>
               <div class="signature-space"></div>
-              <p>ຊື່ ແລະ ນາມສະກຸນ: ................................</p>
-              <p>ຕຳແໜ່ງ: ຫົວໜ້າພະແນກບຸກຄະລາກອນ</p>
+              <p>ຊື່ ແລະ ນາມສະກຸນ: {{ employeeInfo?.name || '................................' }}</p>
+              <p>ລະຫັດພະນັກງານ: {{ employeeInfo?.employee_id || '........' }}</p>
               <p>ວັນທີ່: ........../........../.........</p>
             </div>
           </v-col>
@@ -281,7 +376,7 @@ onMounted(() => {
           <p class="qr-text">ສະແກນເພື່ອກວດສອບຄວາມຖືກຕ້ອງ</p>
         </div>
         <div class="document-footer">
-          <p>ເອກະສານນີ້ຖືກສ້າງໂດຍລະບົບຄອມພິວເຕີ ວັນທີ່ {{ formatDate(new Date()) }} {{ dayjs().format('HH:mm') }}</p>
+          <p>ລາຍງານສ່ວນບຸກຄົນ - ສ້າງໂດຍລະບົບ ວັນທີ່ {{ formatDate(new Date()) }} {{ dayjs().format('HH:mm') }}</p>
           <p>ສຳນັກງານບໍລິຫານງານບຸກຄະລາກອນ - ລະບົບຕິດຕາມການເຂົ້າຮ່ວມງານ</p>
         </div>
       </div>
@@ -420,6 +515,46 @@ onMounted(() => {
   font-size: 12px;
 }
 
+/* ຂໍ້ມູນພະນັກງານ */
+.employee-info-section {
+  margin-bottom: 15px;
+  background: #f9f9f9;
+  padding: 10px;
+  border-radius: 5px;
+  border-left: 4px solid #8B4513;
+}
+
+.employee-info-section h2 {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #000;
+}
+
+.employee-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+  font-size: 11px;
+  border-bottom: 1px dotted #ccc;
+}
+
+.info-item .label {
+  font-weight: 500;
+  color: #555;
+}
+
+.info-item .value {
+  font-weight: bold;
+  color: #000;
+}
+
 /* ສ່ວນສະຫຼຸບ */
 .summary-section {
   margin-bottom: 15px;
@@ -443,20 +578,27 @@ onMounted(() => {
 
 .summary-item {
   display: flex;
-  justify-content: space-between;
-  padding: 4px 8px;
+  flex-direction: column;
+  padding: 6px 8px;
   background: #f9f9f9;
   border-left: 2px solid #8B4513;
   font-size: 10px;
+  border-radius: 3px;
 }
 
 .summary-item .label {
   font-weight: normal;
+  color: #666;
+  margin-bottom: 2px;
 }
 
 .summary-item .value {
   font-weight: bold;
   color: #8B4513;
+}
+
+.penalty-highlight {
+  color: #d32f2f !important;
 }
 
 /* ສ່ວນຂໍ້ມູນ */
@@ -504,18 +646,19 @@ onMounted(() => {
   font-weight: 500;
 }
 
-.name-cell {
-  font-weight: 500;
-  text-align: left;
-  font-size: 9px;
-}
-
 .date-cell {
   text-align: center;
   font-size: 8px;
+  font-weight: 500;
 }
 
 .time-cell {
+  text-align: center;
+  font-size: 8px;
+  font-weight: 500;
+}
+
+.hours-cell {
   text-align: center;
   font-size: 8px;
   font-weight: 500;
@@ -537,6 +680,11 @@ onMounted(() => {
   background-color: #e8f5e8;
 }
 
+.pending-status {
+  color: #f57c00;
+  background-color: #fff3e0;
+}
+
 .penalty-cell {
   text-align: right;
   font-size: 8px;
@@ -544,16 +692,35 @@ onMounted(() => {
   color: #d32f2f;
 }
 
+.note-cell {
+  text-align: center;
+  font-size: 7px;
+}
+
+.warning-note {
+  color: #f57c00;
+  font-weight: bold;
+}
+
+.late-note {
+  color: #d32f2f;
+  font-weight: bold;
+}
+
+.normal-note {
+  color: #388e3c;
+  font-weight: normal;
+}
+
 /* ຄວາມກວ້າງຄໍລັມ */
-.col-no { width: 6%; }
-.col-date { width: 10%; }
-.col-emp-id { width: 8%; }
-.col-name { width: 18%; }
-.col-gender { width: 8%; }
+.col-no { width: 8%; }
+.col-date { width: 12%; }
 .col-checkin { width: 10%; }
 .col-checkout { width: 10%; }
+.col-hours { width: 12%; }
 .col-status { width: 12%; }
 .col-penalty { width: 12%; }
+.col-note { width: 12%; }
 
 /* ບົດສະຫຼຸບ */
 .conclusion {
@@ -701,6 +868,10 @@ onMounted(() => {
   
   .summary-grid {
     grid-template-columns: 1fr 1fr;
+  }
+  
+  .employee-grid {
+    grid-template-columns: 1fr;
   }
   
   .qr-section {

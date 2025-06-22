@@ -50,7 +50,7 @@ const exportToPDF = () => {
   if (nav) nav.style.display = 'none';
   if (header) header.style.display = 'none';
   
-  // ພິມເອກະສານ
+  
   window.print();
   
  
@@ -158,7 +158,7 @@ onMounted(() => {
           <tr v-for="(item, index) in response" :key="item.position_id">
             <td class="text-center">{{ index + 1 }}</td>
             <td class="position-cell">
-              {{ item.position_name }}
+              {{ item.position_name }}<br>
               <br><small class="position-id">ID: {{ item.position_id }}</small>
             </td>
             <td class="number-cell">{{ formatMoney(parseFloat(item.baseSalary.salary)) }}</td>
@@ -170,7 +170,7 @@ onMounted(() => {
       </table>
     </div>
 
-    <!-- Conclusion -->
+    
     <div class="conclusion">
       <p>ຂໍ້ມູນດັ່ງກ່າວຂ້າງເທິງນີ້ ໄດ້ຖືກລວບລວມ ແລະ ກວດສອບຄວາມຖືກຕ້ອງແລ້ວ ເຊິ່ງສາມາດນຳໃຊ້ເປັນຂໍ້ມູນອ້າງອີງ ສຳລັບການວາງແຜນ ແລະ ການພັດທະນາລະບົບການບໍລິຫານງານບຸກຄະລາກອນຕໍ່ໄປ.</p>
     </div>
@@ -202,7 +202,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- QR Code Section -->
+    
     <div class="qr-section">
       <div class="qr-placeholder">
         <div class="qr-code">
@@ -237,7 +237,7 @@ onMounted(() => {
   flex-direction: column;
 }
 
-/* Official Header */
+
 .official-header {
   display: flex;
   align-items: flex-start;
