@@ -9,14 +9,14 @@ const userStore = UserStore();
 
 const userId = ref<number | null>(null);
 
-// ດຶງ ID ຈາກ query params
+
 onMounted(async () => {
   const id = route.query.id;
   if (id && !isNaN(Number(id))) {
     userId.value = Number(id);
     await userStore.getUserDetail(userId.value);
   } else {
-    // ຖ້າບໍ່ມີ ID ໃຫ້ກັບໄປໜ້າລາຍການ
+   
     router.push('/user');
   }
 });

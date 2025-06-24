@@ -8,7 +8,7 @@ export const UserStore = defineStore("user", {
       loading: false,
       respons_data_query: null as UserModel.Data | null,
       
-      // ຂໍ້ມູນລາຍລະອຽດຜູ້ໃຊ້
+      
       user_detail: null as UserModel.User | null,
       
       // ຟອມສ້າງຜູ້ໃຊ້
@@ -23,14 +23,14 @@ export const UserStore = defineStore("user", {
       
       // ຟອມອັບເດດຜູ້ໃຊ້
       form_update_user: {
-        id: null as number | null,
+       
         username: "",
         email: "",
-        password: "", // ອາດຈະເປັນ optional ສຳລັບ update
-        role_id: null as number | null,
+        password: "", 
+        role_id: null as number | null |string,
         employee_id: null as number | null,
         profile_image: null as string | File | null,
-        status: true,
+        
       },
       
       request_query_data: {
@@ -268,7 +268,7 @@ export const UserStore = defineStore("user", {
       }
     },
 
-    // ຕື່ມຂໍ້ມູນໃສ່ຟອມອັບເດດ
+    
     fillUpdateForm(user: UserModel.User) {
       this.form_update_user = {
         id: user.id,

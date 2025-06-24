@@ -4,8 +4,8 @@ import notfounfimages from "@/assets/img/404.png";
 import { UserStore } from "@/stores/user";
 import { UseGlobalStore } from "@/stores/global";
 
-import { useEmployeeStore } from "@/stores/employee"; // ແກ້ໄຂ import
-import { ref, computed, onMounted } from "vue"; // ແກ້ໄຂ import
+import { useEmployeeStore } from "@/stores/employee"; 
+import { ref, computed, onMounted } from "vue"; 
 import { useRouter } from "vue-router";
 
 const roleSore = useRoleStore();
@@ -29,7 +29,7 @@ const loading = ref(false);
 const form = ref();
 const file = ref();
 
-// ເພີ່ມ ref ສຳລັບ preview ຮູບ
+
 const imagePreview = ref<string | null>(null);
 
 const request = userStore.form_create_user;
@@ -43,7 +43,7 @@ const openFile = () => {
   file.value.click();
 };
 
-// ແກ້ໄຂ function onFileChange
+
 const onFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
   const files = target.files;
@@ -52,23 +52,22 @@ const onFileChange = (event: Event) => {
     const selectedFile = files[0];
     console.log('Selected file:', selectedFile);
     
-    // ກວດສອບປະເພດໄຟລ໌
+    
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
     if (!allowedTypes.includes(selectedFile.type)) {
       alert('ກະລຸນາເລືອກໄຟລ໌ຮູບພາບ (JPG, PNG)');
       return;
     }
     
-    // ກວດສອບຂະໜາດໄຟລ໌ (ບໍ່ເກີນ 5MB)
     if (selectedFile.size > 5 * 1024 * 1024) {
       alert('ຂະໜາດໄຟລ໌ໃຫຍ່ເກີນໄປ (ບໍ່ເກີນ 5MB)');
       return;
     }
     
-    // ເກັບໄຟລ໌ສຳລັບສົ່ງໄປ server
+   
     request.profile_image = selectedFile;
     
-    // ສ້າງ preview
+    
     const reader = new FileReader();
     reader.onload = (e) => {
       imagePreview.value = e.target?.result as string;
@@ -77,11 +76,11 @@ const onFileChange = (event: Event) => {
   }
 };
 
-// ແກ້ໄຂ function GetImageUrl
+
 const GetImageUrl = (image: string | File | null) => {
   if (!image) return notfoundref.value;
   
-  // ຖ້າມີ preview ໃຫ້ໃຊ້ preview
+  
   if (imagePreview.value) return imagePreview.value;
   
   if (typeof image === 'string') return image;
@@ -113,7 +112,7 @@ const submitForm = async () => {
   }
 };
 
-// ເພີ່ມ function ລຶບຮູບ
+
 const removeImage = () => {
   request.profile_image = null;
   imagePreview.value = null;
@@ -169,7 +168,7 @@ const removeImage = () => {
                     >
                     </v-btn>
                     
-                    <!-- ເພີ່ມປຸ່ມລຶບຮູບ -->
+                 
                     <v-btn
                       v-if="request.profile_image"
                       class="mb-4"
@@ -267,7 +266,7 @@ const removeImage = () => {
                 </v-col>
 
                 <v-col cols="4">
-                  <!-- ພື້ນທີ່ວ່າງ -->
+                  
                 </v-col>
               </v-row>
             </v-col>

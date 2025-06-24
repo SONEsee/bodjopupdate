@@ -103,6 +103,7 @@ export const UseGlobalStore = defineStore("global", {
         const res = await axios.get(fileLink, {
           responseType: "blob", 
         });
+        console.log("test",res);
         // const res = await axios.get("", {
         //   params: {
         //     q: fileLink,
