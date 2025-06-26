@@ -64,3 +64,35 @@ export interface SpecialAllowance {
     food_money:           string;
     ot:                   string;
 }
+export interface EmployeeRespons {
+    employee_id: number;
+    name:        string;
+    gender:      string;
+    birthdate:   Date;
+    address:     string;
+    phone:       string;
+    schedule_id: number;
+    position_id: number;
+    createdAt:   Date;
+    updatedAt:   Date;
+    schedule:    Schedule;
+    position:    Position;
+}
+
+export interface Position {
+    position_id:   number;
+    position_name: string;
+    rate_ot:       string;
+    base_sal_id:   number;
+    createdAt:     Date;
+    updatedAt:     Date;
+}
+
+export interface Schedule {
+    schedule_id: number;
+    work_shift:  string;
+    shift_start: string;
+    shift_end:   string;
+    createdAt:   Date;
+    updatedAt:   Date;
+}

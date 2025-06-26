@@ -7,7 +7,7 @@ export const useAttendanStore = defineStore("attendan", {
             isloading: false,
             id: (() => {
                 const employeeId = localStorage.getItem("employee_id");
-                console.log("Employee ID from localStorage:", employeeId); // Debug line
+                console.log("Employee ID from localStorage:", employeeId); 
                 return employeeId ? parseInt(employeeId) : 0;
             })(),
         }
