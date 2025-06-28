@@ -99,7 +99,7 @@ const documentNumber = computed(() => {
   return `${dayjs().format('YYYY')}/ATT/${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
 });
 
-// ການຈັດກຸ່ມຂໍ້ມູນຕາມວັນທີ່
+
 const groupedData = computed(() => {
   if (!res.value.length) return {};
   
@@ -143,7 +143,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- ຂໍ້ມູນເອກະສານ -->
+  
       <div class="document-info">
         <div class="doc-number">
           <strong>ເລກທີ່: {{ documentNumber }}</strong>

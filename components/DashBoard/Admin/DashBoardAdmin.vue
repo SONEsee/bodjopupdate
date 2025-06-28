@@ -25,12 +25,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-col cols="12">
-    <div style="border: green solid 1px; border-radius: 5px">
+  <v-col cols="12" v-if="role_id === 1">
+    <div style="border: green solid 1px; border-radius: 5px" >
       <v-container>
       
         <v-row>
-          <v-col cols="12" md="3">
+          <v-col cols="12" md="3" >
             <v-card
               style="background-color: #e91e63; height: 30vh"
               class="d-flex flex-column align-center justify-center"
@@ -174,9 +174,26 @@ onMounted(() => {
       <LateMont />
     </div>
   </v-col>
+  <v-col v-else>
+    <v-row>
+      <v-col cols="12">
+        <DashBoardEmployee />
+      </v-col>
+      <!-- <v-col cols="12" md="6">
+        <MongVeik />
+      </v-col>
+      <v-col cols="12" md="6">
+        <DashBoardSalary />
+      </v-col> -->
+    </v-row>
+  </v-col>
 </template>
 
 <script lang="ts">
+const role= localStorage.getItem("user");
+const role_id = JSON.parse(role || "{}").role_id;
+console.log("role id ", role_id);
+console.log("role id data ",role);
 function formatNumber(num: number): string {
   return new Intl.NumberFormat("en-US").format(num);
 }
