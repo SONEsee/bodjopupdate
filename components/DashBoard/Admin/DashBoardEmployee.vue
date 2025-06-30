@@ -190,7 +190,7 @@ const formatSalary = (amount: string) => {
   margin: 0 auto;
   padding: 20px;
   font-family: "Noto Sans Lao", sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1f38aa 0%, #2f48d3 100%);
   min-height: 100vh;
 }
 
@@ -206,7 +206,7 @@ const formatSalary = (amount: string) => {
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
+  border: 4px solid rgba(13, 25, 189, 0.3);
   border-top: 4px solid white;
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -230,7 +230,7 @@ const formatSalary = (amount: string) => {
 }
 
 .profile-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #667eea 0%, #251bb8 100%);
   color: white;
   padding: 40px;
   display: flex;

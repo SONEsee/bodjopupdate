@@ -25,7 +25,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-col cols="12" v-if="role_id === 1">
+  <v-col cols="12" v-if="role_id === 1 || role_id === 2">
     <div style="border: green solid 1px; border-radius: 5px" >
       <v-container>
       
