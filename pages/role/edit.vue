@@ -1,5 +1,9 @@
 <script setup lang="ts">
-
+definePageMeta({
+  middleware: ['auth'],
+  requiresPermission: true,
+  subMenuId: 5
+})
 import { useRoute } from "vue-router";
 const route = useRoute();
 const id = parseInt(

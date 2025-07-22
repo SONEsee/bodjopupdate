@@ -180,11 +180,20 @@
                           <div class="result-data">
                             <div class="result-row">
                               <span>ເງິນເດືອນພື້ນຖານ:</span>
+                              
                               <span class="font-weight-bold">{{ formatMoney(getEmployeeResult(employee.employee_id).baseSalary) }}</span>
                             </div>
                             <div class="result-row">
                               <span>OT:</span>
                               <span class="font-weight-bold">{{ formatMoney(getEmployeeResult(employee.employee_id).ot) }}</span>
+                            </div>
+                            <div class="result-row">
+                              <span>ເງິນກຶນເຂົ້າ:</span>
+                              <span class="font-weight-bold">{{ formatMoney(getEmployeeResult(employee.employee_id)?.foodMoney) }}</span>
+                            </div>
+                            <div class="result-row">
+                              <span style="color: brown;">ເງຶນຖືກຕັດ:</span>
+                              <span class="font-weight-bold text-error">{{ formatMoney(getEmployeeResult(employee.employee_id)?.cutMoney) }}</span>
                             </div>
                             <div class="result-row total-row">
                               <span>ເງິນສຸດທິ:</span>

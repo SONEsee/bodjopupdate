@@ -61,7 +61,7 @@ onMounted(() => {
       <div class="header-content">
         <v-icon name="mdi-account-circle" size="32" class="header-icon"></v-icon>
         <div>
-          <h1 class="page-title">ຂໍ້ມູນພະນັກວຽກ</h1>
+          <h1 class="page-title">ຂໍ້ມູນຕຳແໜ່ງສວນຕົວຂອງພະນັກງານ</h1>
           <p class="page-subtitle">ຂໍ້ມູນສ່ວນຕົວ ແລະ ລາຍລະອຽດການເຮັດວຽກ</p>
         </div>
       </div>

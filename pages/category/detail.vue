@@ -2,7 +2,11 @@
 import { useRoute } from "vue-router";
 import { onMounted } from "vue";
 import { UseCategoryStore } from "~/stores/category";
-
+definePageMeta({
+  middleware: ['auth'],
+  requiresPermission: true,
+  subMenuId: 5
+})
 const categoryStore = UseCategoryStore();
 const route = useRoute();
 const id = route.query.id; // ປ່ຽນຈາກ ID ເປັນ id (ຕົວນ້ອຍ)

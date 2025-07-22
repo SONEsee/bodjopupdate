@@ -37,6 +37,7 @@ const handleDeleteMenu = async (id: number) => {
             res?.length ?? 0
           )})`"
         />
+       
       </v-col>
       <v-col cols="12" md="2" class="text-right">
         <v-btn color="primary" @click="goPath('/mainmenu/create')">
@@ -51,7 +52,7 @@ const handleDeleteMenu = async (id: number) => {
       </template>
 
       <template v-slot:item.created_at="{ item, index }">
-        {{ new Date(item.created_at).toLocaleDateString("lo-LA") }}
+        {{ new Date(item.created_at).toLocaleDateString("lo-LA")  }}
       </template>
 
       <template v-slot:item.actions="{ item, index }">

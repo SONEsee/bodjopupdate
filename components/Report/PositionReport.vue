@@ -2,7 +2,7 @@
 import dayjs from "#build/dayjs.imports.mjs";
 
 const positoinStore = usePositoinStore();
-const title = "ລາຍງານຂໍ້ມູນຂັ້ນເງິນເດືອນ";
+const title = "ລາຍງານຂໍ້ມູນຕຳແໜ່ງພະນັກງານ";
 
 const response = computed(() => {
   return positoinStore.respons_data_positoin || [];

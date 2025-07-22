@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import CreateProduct from '~/components/Product/CreateProduct.vue';
-
+definePageMeta({
+  middleware: ['auth'],
+  requiresPermission: true,
+  subMenuId: 5
+})
 </script>
 <template>
     <CreateProduct />
